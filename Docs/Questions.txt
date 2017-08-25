@@ -1,0 +1,8 @@
+How to have a Grammer that defines a 
+semi-colon seperated language? Or is the semi colon purely
+a symbol for the lexer to split on?
+
+Which phase the lexer,parser,or interpreter make sure
+this is not a valid statement. 8 * 4 = 1 = 2;
+[Interpreter]
+
