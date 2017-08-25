@@ -10,7 +10,8 @@ goal is simply to learn the processes involved in language design and
 implementation.
 
 ## Design Process
-* Grammer Design
+* Grammer Design 
+
     The grammer is a LL grammer. LL was picked in place of LR because
     I planned to implement my own parser and an LL grammer is easily
     extended into a recursive decent parser. The BNF for this grammer
