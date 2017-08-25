@@ -1,35 +1,28 @@
-This page is the BNF Grammer of POL
-
 ============================================================
-POL Version 1.0 - Operators and Types
+POL Version 1.0 - Operators
 ============================================================
-<bop> ::= + 
-        | - 
-        | / 
-        | * 
-        | ^ 
-        | % 
-        | =
+---BNF Grammer---
 
-<uop> ::= !
+<stmt> ::= <asgn-expr> | <expr> | <cond-expr>
 
-<cmt> ::= # string
+<asgn-expr> ::= ID = <expr>
 
-<stmt> ::= <asgn-expr> ; | <expr> ; | <cmnt>
+<cond-expr> ::= <expr> (( && | || | == | != | <= | >= | < | >) <expr>)*
 
-<asgn-expr> ::= <type> <id> = <expr>
+<expr> ::= term (( + | - ) term)*
 
-<expr> ::= <expr> <bop> <expr> | <uop> <expr> | num | string | bool
+<term> ::= factor (( * | / | % | ^) factor)*
 
-<type> ::= "num" | "string" | "bool"
+<factor> ::= ( - | ! ) <factor> | ID | NUM | STR | BOOL | (<expr>)
 
-<id> ::= [A-Za-z][A-Za-z0-9]*
+--- Terminal Definitions ---
+ID ::= [A-Za-z][A-Za-z0-9]*
 
-num ::= [0-9]+(.[0-9]+)?
+NUM ::= [0-9]+(.[0-9]+)?
 
-string ::= ".*"
+STR ::= ".*"
 
-bool ::= true|false
+BOOL ::= true|false
 
 ============================================================
 POL Version 2.0 - Control Flow and Scope
@@ -44,6 +37,4 @@ while
 ============================================================
 POL Version 3.0 - Fun Features and Optimization
 ============================================================
-Pairs
-Enternal Libs
-arrays, binary?
+Data structures: cons cells and associative arrays 
