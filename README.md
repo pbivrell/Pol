@@ -15,5 +15,5 @@ implementation.
     The grammer is a LL grammer. LL was picked in place of LR because
     I planned to implement my own parser and an LL grammer is easily
     extended into a recursive decent parser. The BNF for this grammer
-    can be found under [Doc/Grammer.txt]../blob/master/Doc/Grammer.txt
+    can be found under [Doc/Grammer.txt](Docs/Grammer.txt)
 
