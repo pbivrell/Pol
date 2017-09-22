@@ -3,11 +3,13 @@ package main
 import "fmt"
 
 func isP(i int) bool{
-    return true
+    return i > 0
 }
 
 func main(){
-    for char := isP(1); char; {
+    i := 8
+    for char := isP(i); char; char = isP(i) {
         fmt.Println("TEST")
+        i = i -1
     }
 }
