@@ -1,9 +1,9 @@
-## Breif Description
+## Brief Description
 POL is an interpreted procedural programming language designed
 for an Independent Study at Colorado State University.
 
 ## Reasons For Writing
-I am building POL as part of an educational glimps into the process
+I am building POL as part of an educational glimpse into the process
 of writing a grammer, lexer, parser, and an interpreter. My goal is 
 to learn and take part in, the processes involved in language design 
 and implementation.
@@ -36,8 +36,8 @@ and implementation.
 
 	TBW
 
-## Reasources
-Dr. Wim Bohm - Colorado State University Professor who over saw the project
+## Resources
+Dr. Wim Bohm - Colorado State University Professor who oversaw the project.
 
 Essentials of Programming Languages 3rd Edition - Book used to aid interpreter development
 
