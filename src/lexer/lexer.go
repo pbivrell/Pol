@@ -93,7 +93,7 @@ func tokenize(lex *lexer)  {
 
         //Indentifier
         }else if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z'){
-            fmt.Printf("ID: %+v\n",getID(lex)
+            fmt.Printf("ID: %+v\n",getID(lex))
 
         //Operators
         }else if isOp := isOperator(char); isOp > 0 { //+ - * / ^ % || && = < > <= >= == != !
@@ -123,7 +123,7 @@ func getOp(lex *lexer) token{
     num,_ = lex.next()
 
     //TODO rewrite this if statement it is ugly. Use some sort of Operator Map?
-    if next, hasNext := lex.peek(); isOperator(num) == 2 && hasNext && isDoubleOperator(string(num) + string(next){
+    if next, hasNext := lex.peek(); isOperator(num) == 2 && hasNext && isDoubleOperator(string(num) + string(next)){
         _, _ = lex.next()
         return token{"op",string(first) + string(next)}
     }
