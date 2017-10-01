@@ -67,7 +67,7 @@ func (lex *lexer) peek() (rune,bool) {
    and a token. Then it prints a syntax error.
 
 */
-func  error(lex *lexer, msg string, token string) {
+func printError(lex *lexer, msg string, token string) {
     fmt.Printf("Sytnax error [line %d]: %s at token: [%s]\n",lex.lineno, msg, token)
 }
 
@@ -110,7 +110,7 @@ func tokenize(lex *lexer)  {
             _,_ = lex.next()
 
         }else{
-            error(lex,"invalid character [" + string(char) + "]","FIX THIS PAUL")
+            printError(lex,"invalid character [" + string(char) + "]","FIX THIS PAUL")
         }
     }
 }
@@ -145,14 +145,14 @@ func getNum(lex *lexer) token {
         //TODO This is terrible please rewrite
         if char == '.' {
             if hasDec{
-                error(lex,"number can not have multiple decimals",res + ".")
+                printError(lex,"number can not have multiple decimals",res + ".")
                 break
             }else{
                 res = res + string(char)
                 _, _ = lex.next()
                 char, _ = lex.peek()
                 if char, hasNext = lex.peek(); !hasNext || !isDigit(char){
-                    error(lex,"dot must be followed by a number", res + string(char))
+                    printError(lex,"dot must be followed by a number", res + string(char))
                 }
                 hasDec = true
             }
@@ -213,7 +213,7 @@ func getString(lex *lexer) token{
             _,_ = lex.next()
         }
     }
-    error(lex,"string missing closing quote",res)
+    printError(lex,"string missing closing quote",res)
     return token{}
 }
 
