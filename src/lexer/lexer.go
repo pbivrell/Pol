@@ -106,7 +106,7 @@ func tokenize(lex *lexer)  {
 
         //Should be the catch all for only whitespace
         }else if unicode.IsSpace(char){
-            fmt.Printf("whitespace\n")
+            fmt.Println("whitespace")
             _,_ = lex.next()
 
         }else{
