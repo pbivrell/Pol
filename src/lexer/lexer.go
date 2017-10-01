@@ -120,14 +120,14 @@ func tokenize(lex *lexer)  {
    already verfied that the first rune is an operator
 */
 func getOp(lex *lexer) token{
-    num,_ = lex.next()
+    num,_ := lex.next()
 
     //TODO rewrite this if statement it is ugly. Use some sort of Operator Map?
     if next, hasNext := lex.peek(); isOperator(num) == 2 && hasNext && isDoubleOperator(string(num) + string(next)){
         _, _ = lex.next()
-        return token{"op",string(first) + string(next)}
+        return token{"op",string(num) + string(next)} // TODO check if renaming "first" to "num" matches original intent. csf
     }
-    return token{"op",string(first)}
+    return token{"op",string(num)} // TODO check if renaming "first" to "num" matches original intent. csf
 }
 
 /* getNum is a function that takes a lexer pointer
@@ -136,7 +136,8 @@ func getOp(lex *lexer) token{
    getNum assumes that the first rune is a valid number
 */
 func getNum(lex *lexer) token {
-    res,_ := string(lex.next())
+    raw_res,_ := lex.next()
+    res := string(raw_res) // TODO check if this matches original intent. csf
     hasDec := false
 
     for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek(){
@@ -176,8 +177,9 @@ func isDigit(char rune) bool{
    the first rune is already a valid ID
 */
 func getID(lex *lexer) token{
-    res := string(lex.next())
-    char, hasNext := lex.peek()
+    raw_res,_ := lex.next()
+    res := string(raw_res)
+    //char, hasNext := lex.peek() // commented out currently unused variables. csf
     for char, hasNext := lex.peek(); hasNext && isID(char); char, hasNext = lex.peek() {
         _, _ = lex.next()
         res = res + string(char)
