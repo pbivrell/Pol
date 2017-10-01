@@ -72,8 +72,8 @@ func  error(lex *lexer, msg string, token string) {
 }
 
 /* Tokenize is a function that takes
-   a lexer pointer and iterates over the lexer taking idenifying
-   runes and calling appropriate function to tokenize the idenified
+   a lexer pointer and iterates over the lexer taking identifying
+   runes and calling appropriate function to tokenize the identified
    token.
 */
 func tokenize(lex *lexer)  {
@@ -91,7 +91,7 @@ func tokenize(lex *lexer)  {
         }else if char == '"'{
             fmt.Printf("String: %+v\n",getString(lex))
 
-        //Indentifier
+        //Identifier
         }else if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z'){
             fmt.Printf("ID: %+v\n",getID(lex))
 
@@ -99,8 +99,8 @@ func tokenize(lex *lexer)  {
         }else if isOp := isOperator(char); isOp > 0 { //+ - * / ^ % || && = < > <= >= == != !
             fmt.Printf("OP: %+v\n",getOp(lex))
 
-        //Seperators
-        }else if isSeperator(char){
+        //Separators
+        }else if isSeparator(char){
             fmt.Printf("Seperator: %+v\n",token{"Seperator",string(char)})
             _,_ = lex.next()
 
@@ -117,7 +117,7 @@ func tokenize(lex *lexer)  {
 
 /* getOp is a function that takes a lexer and
    returns a new token. getOp assumes that you have
-   already verfied that the first rune is an operator
+   already verified that the first rune is an operator
 */
 func getOp(lex *lexer) token{
     num,_ := lex.next()
@@ -141,7 +141,7 @@ func getNum(lex *lexer) token {
     hasDec := false
 
     for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek(){
-        //This if statement cheks logic for decimals.
+        //This if statement checks logic for decimals.
         //TODO This is terrible please rewrite
         if char == '.' {
             if hasDec{
@@ -276,8 +276,8 @@ func isOperator(char rune) int{
     }
 }
 
-/* isSeperator takes a rune and returns a bool if it is a valid seperator */
-func isSeperator(char rune) bool {
+/* isSeparator takes a rune and returns a bool if it is a valid separator */
+func isSeparator(char rune) bool {
     switch char {
     case ';':
         return true
