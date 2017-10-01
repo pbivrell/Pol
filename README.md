@@ -4,33 +4,32 @@ for an Independent Study at Colorado State University.
 
 ## Reasons For Writing
 I am building POL as part of an educational glimpse into the process
-of writing a grammar, lexer, parser, and an interpreter. My goal is
-to learn and take part in, the processes involved in language design 
+of writing a grammar, a lexer, a parser, and an interpreter. My goal is
+to learn about the processes involved in language design
 and implementation.
 
 ## Design Process
 * Grammar Design
 
     The grammar for this language is a LL grammar. This choice was made because
-    LL grammars can be easily implemented as a recursive decent
-    parser (see below). The BNF for the grammar can be found under
-    [Docs/Grammar.txt](Docs/Grammar.txt)
+    LL grammars can be easily implemented as a recursive descent
+    parser (see below). The BNF for the grammar can be found in
+    [Grammar.txt](doc/Grammar.txt)
 
 * Lexer
 	
-    The Lexer preforms lexical analysis on .pol files and then tokenizes
+    The lexer performs lexical analysis on .pol files and then tokenizes
     valid syntax for use by the parser. The lexer takes .pol files and
-    produces .pol_lexed file which is a white space delimited file of tokens.
-    The code for the lexer is written in C and can be found under [src/Lexer.c](src/Lexer.c)
+    produces .pol_lexed files, which are a white space delimited file of tokens.
+    The code for the lexer is written in Go and can be found in [lexer.go](src/lexer/lexer.go)
 
 * Parser
 
-    The parser takes .pol_lexed files from the lexer and preforms a
-    predictive parsing method known as recursive decent. In the
-    processes of performing recursive decent the parser create an
+    The parser takes .pol_lexed files from the lexer and performs a
+    predictive parsing method known as recursive descent. In the
+    process of performing recursive descent, the parser creates an
     abstract syntax tree that will later be walked by the interpreter.
-    When the parser encounters invalid syntax will be written out to
-    user. The code for the parser is written in C and can be found under [src/Parser.c](src/Lexer.c)
+    When the parser encounters invalid syntax an error will be written out to the user.
 
 * Interpreter
 
