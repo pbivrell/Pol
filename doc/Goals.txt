@@ -1,10 +1,10 @@
 Goals
-[Week  1] Aug 25: Initial Grammer           V1
+[Week  1] Aug 25: Initial Grammar           V1
 [Week  3] Sep  8: Lexer
 [Week  5] Sep 22: Parser
 [Week  7] Oct  6: Interpreter
-[Week  9] Oct 20: Grammer/Lexer             V2
+[Week  9] Oct 20: Grammar/Lexer             V2
 [Week 11] Nov  3: Parser/Interpreter    
-[Week 13] Nov 17: Grammer/Lexer             V3
+[Week 13] Nov 17: Grammar/Lexer             V3
 [Week 15] Dec  1: Parser/Interpreter
 [Week 16] Dec  8: Presented Final Project
