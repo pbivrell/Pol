@@ -1,5 +1,5 @@
-How to have a Grammer that defines a 
-semi-colon seperated language? Or is the semi colon purely
+How to have a Grammar that defines a
+semicolon separated language? Or is the semicolon purely
 a symbol for the lexer to split on?
 
 Which phase the lexer,parser,or interpreter make sure
