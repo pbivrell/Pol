@@ -29,6 +29,7 @@ type lexer struct {
    - typ is the token type
    - value is the token value
 */
+
 type Token struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
@@ -126,7 +127,7 @@ func tokenize(lex *lexer) []Token {
 			resTokens = append(resTokens, tOp)
 
 			//Seperators
-		} else if isSeperator(char) {
+		} else if isSeparator(char) {
 			tSeperator := Token{"Seperator", string(char)}
 			if debug {
 				fmt.Printf("Seperator: %+v\n", tSeperator)
@@ -151,8 +152,9 @@ func tokenize(lex *lexer) []Token {
 
 /* getOp is a function that takes a lexer and
    returns a new token. getOp assumes that you have
-   already verfied that the first rune is an operator
+   already verified that the first rune is an operator
 */
+
 func GetOp(lex *lexer) Token {
 	num, _ := lex.next()
 
@@ -214,9 +216,11 @@ func isDigit(char rune) bool {
    invalid identifier character ![0-9a-zA-Z]. getID assumes that
    the first rune is already a valid ID
 */
+
 func GetID(lex *lexer) Token {
 	first, _ := lex.next()
 	res := string(first)
+  
 	for char, hasNext := lex.peek(); hasNext && isID(char); char, hasNext = lex.peek() {
 		_, _ = lex.next()
 		res = res + string(char)
@@ -234,6 +238,7 @@ func isID(char rune) bool {
    quotes can be escaped with a backslash allowing the rune '"' to
    be in a string. getString assumes that the first rune is a quote.
 */
+
 func GetString(lex *lexer) Token {
 	_, _ = lex.next()
 	res := ""
@@ -315,7 +320,7 @@ func isOperator(char rune) int {
 }
 
 /* isSeperator takes a rune and returns a bool if it is a valid seperator */
-func isSeperator(char rune) bool {
+func isSeparator(char rune) bool {
 	switch char {
 	case ';':
 		return true
@@ -367,6 +372,7 @@ func main() {
 	if len(os.Args) == 3 {
 		debug = true
 	}
+
 	data, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		panic(err)
