@@ -1,9 +1,7 @@
 package lexer
 
 import "fmt"
-import "os"
 import "unicode"
-import "encoding/json"
 import "strings"
 import "common"
 
@@ -249,7 +247,7 @@ func isID(char rune) bool {
 	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9')
 }
 
-/* getString is a method of the Lexer that returns a token.
+/* getString is a function that takes a Lexer and returns a token.
    getString will eat runes until it reaches a quote rune '"'. Note
    quotes can be escaped with a backslash allowing the rune '"' to
    be in a string. getString assumes that the first rune is a quote.
@@ -346,35 +344,5 @@ func isSeparator(char rune) bool {
 		return true
 	default:
 		return false
-	}
-}
-
-/* Writes tokens to a json file. Will not write if some errors
-   were generated during tokenization
-*/
-func WriteTokens(toks []common.Token, hasErrors bool, filename string) {
-	if hasErrors {
-		fmt.Printf("Lexer: Failed to lex file %s see errors above!\n", filename)
-		return
-	}
-	//Convert Exported struct Token to Json
-	jsonData, err := json.Marshal(toks)
-	if err != nil {
-		panic(err)
-	}
-
-	//TODO make run time argument so that output path is not static
-	//but can be defined by the user
-	file := strings.Split(filename, "/")
-	filePath := "." + strings.Split(file[len(file)-1], ".pol")[0] + ".lex_pol"
-
-	fh, errw := os.Create(filePath)
-	defer fh.Close()
-	if err != nil {
-		panic(errw)
-	}
-	_, write_err := fh.Write(jsonData)
-	if write_err != nil {
-		panic(write_err)
 	}
 }
