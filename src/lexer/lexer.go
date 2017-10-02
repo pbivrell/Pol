@@ -190,7 +190,7 @@ func (lex *Lexer) GetNum() common.Token {
 		if isDigit(char) {
 			res = res + string(char)
 		} else if char == '.' {
-			res = res + getDecimal(lex)
+			res = res + lex.getDecimal()
 			break
 		} else {
 			break
