@@ -4,6 +4,8 @@ import "lexer"
 import "io/ioutil"
 import "fmt"
 import "os"
+import "common"
+import "strings"
 
 /* Pol main */
 func main() {
@@ -25,5 +27,14 @@ func main() {
     //Lex file data into slice of Tokens
 	lex := lexer.NewLexer(string(data))
 	tokens := lexer.Tokenize(lex)
-    lexer.WriteTokens(tokens, lex.HasErrors, os.Args[1])
+
+	if lex.HasErrors {
+		fmt.Printf("Pol: Fix errors above before continuing")
+		return
+	}
+
+	//TODO Make output writing a runtime option
+	//TODO replace this horrible mess of string spliting
+	file := "." + strings.Split(strings.Split(os.Args[1],"/")[len(strings.Split(os.Args[1],"/"))-1],".pol")[0] + ".lex_pol"
+	common.WriteJSON(tokens, file)
 }
