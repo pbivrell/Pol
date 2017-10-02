@@ -5,6 +5,7 @@ import "os"
 import "unicode"
 import "encoding/json"
 import "strings"
+import "common"
 
 /* Set by command line arguments. Enables non-error print statements */
 var Debug = false
@@ -32,15 +33,6 @@ func NewLexer(file string) *Lexer{
 	return &Lexer{[]rune(file),0,len(file),1,false}
 }
 
-/* token is a struct containing token information
-   - typ is the token type
-   - value is the token value
-*/
-
-type Token struct {
-	Type  string `json:"type"`
-	Value string `json:"value"`
-}
 
 /* Next is a method of the Lexer struct. It does not
    take any parameters and returns two types: a bool
@@ -101,8 +93,8 @@ func printError(lex *Lexer, msg string, token string) {
    runes and calling appropriate function to tokenize the identified
    token.
 */
-func Tokenize(lex *Lexer) []Token {
-	resTokens := []Token{}
+func Tokenize(lex *Lexer) []common.Token {
+	resTokens := []common.Token{}
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		//New line
 		if char == '\n' {
@@ -115,7 +107,7 @@ func Tokenize(lex *Lexer) []Token {
 
 			//Digit
 		} else if isDigit(char) {
-			tNum := GetNum(lex)
+			tNum := lex.GetNum()
 			if Debug {
 				fmt.Printf("Number: %+v\n", tNum)
 			}
@@ -123,7 +115,7 @@ func Tokenize(lex *Lexer) []Token {
 
 			//String
 		} else if char == '"' {
-			tString := GetString(lex)
+			tString := lex.GetString()
 			if Debug {
 				fmt.Printf("String: %+v\n", tString)
 			}
@@ -131,7 +123,7 @@ func Tokenize(lex *Lexer) []Token {
 
 			//Indentifier
 		} else if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') {
-			tId := GetID(lex)
+			tId := lex.GetID()
 			if Debug {
 				fmt.Printf("ID: %+v\n", tId)
 			}
@@ -139,7 +131,7 @@ func Tokenize(lex *Lexer) []Token {
 
 			//Operators
 		} else if isOp := isOperator(char); isOp > 0 { //+ - * / ^ % || && = < > <= >= == != !
-			tOp := GetOp(lex)
+			tOp := lex.GetOp()
 			if Debug {
 				fmt.Printf("OP: %+v\n", tOp)
 			}
@@ -147,7 +139,7 @@ func Tokenize(lex *Lexer) []Token {
 
 			//Seperators
 		} else if isSeparator(char) {
-			tSeparator := Token{"Separator", string(char)}
+			tSeparator := common.Token{"Separator", string(char)}
 			if Debug {
 				fmt.Printf("Separator: %+v\n", tSeparator)
 			}
@@ -169,28 +161,28 @@ func Tokenize(lex *Lexer) []Token {
 	return resTokens
 }
 
-/* getOp is a function that takes a Lexer and
+/* getOp is a method of the Lexer that
    returns a new token. getOp assumes that you have
    already verified that the first rune is an operator
 */
 
-func GetOp(lex *Lexer) Token {
+func (lex *Lexer) GetOp() common.Token {
 	num, _ := lex.next()
 
 	//TODO rewrite this if statement it is ugly. Use some sort of Operator Map?
 	if next, hasNext := lex.peek(); isOperator(num) == 2 && hasNext && isDoubleOperator(string(num)+string(next)) {
 		_, _ = lex.next()
-		return Token{"op", string(num) + string(next)}
+		return common.Token{"op", string(num) + string(next)}
 	}
-	return Token{"op", string(num)}
+	return common.Token{"op", string(num)}
 }
 
-/* getNum is a function that takes a Lexer pointer
-   and returns a token. getNum will eat runes by calling
+/* getNum is a method of the Lexer that
+   returns a token. getNum will eat runes by calling
    Lexer.next() until the result no longer matches [0-9]+(.[0-9]+)?
    getNum assumes that the first rune is a valid number
 */
-func GetNum(lex *Lexer) Token {
+func (lex *Lexer) GetNum() common.Token {
 	raw_res, _ := lex.next()
 	res := string(raw_res)
 
@@ -205,13 +197,14 @@ func GetNum(lex *Lexer) Token {
 		}
 		_, _ = lex.next()
 	}
-	return Token{"num", res}
+	return common.Token{"num", res}
 }
 
-/* getDecimal is a function that will eat all of the runes
-   that can be in a decimal point of a number
+/* getDecimal is a method of the Lexer that will eat all of the runes
+   that legally follow a decimal point of a number. Returns results as
+   a string
 */
-func getDecimal(lex *Lexer) string {
+func (lex *Lexer) getDecimal() string {
 	next, _ := lex.next()
 	res := string(next)
 	if num, hasNext := lex.peek(); !isDigit(num) || !hasNext{
@@ -234,13 +227,13 @@ func isDigit(char rune) bool {
 	return (char >= '0' && char <= '9')
 }
 
-/* getID is a function that takes a Lexer pointer and returns
+/* getID is a method of the Lexer that returns
    a token. getID eat runes calling lex.next() until it reaches an
    invalid identifier character ![0-9a-zA-Z]. getID assumes that
    the first rune is already a valid ID
 */
 
-func GetID(lex *Lexer) Token {
+func (lex *Lexer) GetID() common.Token {
 	raw_res, _ := lex.next()
 	res := string(raw_res)
 
@@ -248,7 +241,7 @@ func GetID(lex *Lexer) Token {
 		_, _ = lex.next()
 		res = res + string(char)
 	}
-	return Token{"id", res}
+	return common.Token{"id", res}
 }
 
 /* isID takes a rune returns bool if it is [0-9a-zA-Z] */
@@ -256,19 +249,19 @@ func isID(char rune) bool {
 	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9')
 }
 
-/* getString is a function that takes a Lexer and returns a token.
+/* getString is a method of the Lexer that returns a token.
    getString will eat runes until it reaches a quote rune '"'. Note
    quotes can be escaped with a backslash allowing the rune '"' to
    be in a string. getString assumes that the first rune is a quote.
 */
 
-func GetString(lex *Lexer) Token {
+func (lex *Lexer) GetString() common.Token {
 	_, _ = lex.next()
 	res := ""
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		if char == '"' {
 			_, _ = lex.next()
-			return Token{"string", res}
+			return common.Token{"string", res}
 		} else if char == '\\' {
 			if char, hasNext = lex.peek(); hasNext && char == '"' {
 				res = res + "\""
@@ -280,7 +273,7 @@ func GetString(lex *Lexer) Token {
 		}
 	}
 	printError(lex, "string missing closing quote", res)
-	return Token{}
+	return common.Token{}
 }
 
 /* isDoubleOperator take a string operator and returns
@@ -359,7 +352,7 @@ func isSeparator(char rune) bool {
 /* Writes tokens to a json file. Will not write if some errors
    were generated during tokenization
 */
-func WriteTokens(toks []Token, hasErrors bool, filename string) {
+func WriteTokens(toks []common.Token, hasErrors bool, filename string) {
 	if hasErrors {
 		fmt.Printf("Lexer: Failed to lex file %s see errors above!\n", filename)
 		return
