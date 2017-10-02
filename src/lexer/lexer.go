@@ -71,13 +71,21 @@ func (lex *lexer) peek() (rune, bool) {
    and a token. Then it prints a syntax error.
 */
 func printError(lex *lexer, msg string, token string) {
-	fmt.Printf("Sytnax error [line %d]: %s at token: [%s]\n", lex.lineno, msg, token)
+	token = strings.Replace(token,"\n","\\n",-1)
+	if len(token) > 10{
+		token = token[0:9]
+	}
+
+	fmt.Printf("Sytnax error: %s: Line %d: Token [%s]\n", msg,lex.lineno, token)
 	//Eat tokens while until whitespace or seperator
 	//Should decrease likelyhood of cascading errors
 	lex.hasErrors = true
-	for char, hasNext := lex.next(); hasNext && !((isSeperator(char)) || unicode.IsSpace(char)); char, hasNext = lex.next() {
-
-	}
+	//This causes problems with the new line count
+	/*for char, hasNext := lex.next(); hasNext && !((isSeparator(char)) || unicode.IsSpace(char)); char, hasNext = lex.next() {
+		if char == '\n'{
+			lex.lineno = lex.lineno + 1
+		}
+	}*/
 
 }
 
@@ -91,6 +99,10 @@ func tokenize(lex *lexer) []Token {
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		//New line
 		if char == '\n' {
+			// Printing when theres a new line feels like to much
+			/*if debug {
+				fmt.Println("New line")
+			}*/
 			lex.lineno = lex.lineno + 1
 			_, _ = lex.next()
 
@@ -143,7 +155,7 @@ func tokenize(lex *lexer) []Token {
 			_, _ = lex.next()
 
 		} else {
-			printError(lex, "invalid character ["+string(char)+"]", "FIX THIS PAUL")
+			printError(lex, "invalid character ["+string(char)+"]", "FIX THIS")
 			_, _ = lex.next()
 		}
 	}
@@ -195,6 +207,10 @@ func GetNum(lex *lexer) Token {
 func getDecimal(lex *lexer) string {
 	next, _ := lex.next()
 	res := string(next)
+	if num, hasNext := lex.peek(); !isDigit(num) || !hasNext{
+		printError(lex,"decimal point must be followed by number",string(num))
+		return ""
+	}
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		if isDigit(char) {
 			res = res + string(char)
@@ -220,7 +236,7 @@ func isDigit(char rune) bool {
 func GetID(lex *lexer) Token {
 	raw_res, _ := lex.next()
 	res := string(raw_res)
-  
+
 	for char, hasNext := lex.peek(); hasNext && isID(char); char, hasNext = lex.peek() {
 		_, _ = lex.next()
 		res = res + string(char)
