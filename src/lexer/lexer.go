@@ -82,8 +82,8 @@ func printError(lex *lexer, msg string, token string) {
 }
 
 /* Tokenize is a function that takes
-a lexer pointer and iterates over the lexer taking idenifying
-   runes and calling appropriate function to tokenize the idenified
+   a lexer pointer and iterates over the lexer taking identifying
+   runes and calling appropriate function to tokenize the identified
    token.
 */
 func tokenize(lex *lexer) []Token {
@@ -128,17 +128,17 @@ func tokenize(lex *lexer) []Token {
 
 			//Seperators
 		} else if isSeparator(char) {
-			tSeperator := Token{"Seperator", string(char)}
+			tSeparator := Token{"Separator", string(char)}
 			if debug {
-				fmt.Printf("Seperator: %+v\n", tSeperator)
+				fmt.Printf("Separator: %+v\n", tSeparator)
 			}
 			_, _ = lex.next()
-			resTokens = append(resTokens, tSeperator)
+			resTokens = append(resTokens, tSeparator)
 
 			//Should be the catch all for only whitespace
 		} else if unicode.IsSpace(char) {
 			if debug {
-				fmt.Printf("Whitespace\n")
+				fmt.Println("Whitespace")
 			}
 			_, _ = lex.next()
 
@@ -172,8 +172,8 @@ func GetOp(lex *lexer) Token {
    getNum assumes that the first rune is a valid number
 */
 func GetNum(lex *lexer) Token {
-	first, _ := lex.next()
-	res := string(first)
+	raw_res, _ := lex.next()
+	res := string(raw_res)
 
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		if isDigit(char) {
@@ -218,8 +218,8 @@ func isDigit(char rune) bool {
 */
 
 func GetID(lex *lexer) Token {
-	first, _ := lex.next()
-	res := string(first)
+	raw_res, _ := lex.next()
+	res := string(raw_res)
   
 	for char, hasNext := lex.peek(); hasNext && isID(char); char, hasNext = lex.peek() {
 		_, _ = lex.next()
@@ -319,7 +319,7 @@ func isOperator(char rune) int {
 	}
 }
 
-/* isSeperator takes a rune and returns a bool if it is a valid seperator */
+/* isSeparator takes a rune and returns a bool if it is a valid separator */
 func isSeparator(char rune) bool {
 	switch char {
 	case ';':
