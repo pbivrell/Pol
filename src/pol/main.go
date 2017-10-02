@@ -24,6 +24,6 @@ func main() {
 
     //Lex file data into slice of Tokens
 	lex := lexer.NewLexer(string(data))
-    lexer.WriteTokens(tokens, lex.HasErrors, os.Args[1])
 	tokens := lexer.Tokenize(lex)
+    lexer.WriteTokens(tokens, lex.HasErrors, os.Args[1])
 }
