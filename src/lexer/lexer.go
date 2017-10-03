@@ -27,10 +27,9 @@ type Lexer struct {
    creates and initalizes as Lexer
 */
 
-func NewLexer(file string) *Lexer{
-	return &Lexer{[]rune(file),0,len(file),1,false}
+func NewLexer(file string) *Lexer {
+	return &Lexer{[]rune(file), 0, len(file), 1, false}
 }
-
 
 /* Next is a method of the Lexer struct. It does not
    take any parameters and returns two types: a bool
@@ -68,12 +67,12 @@ func (lex *Lexer) peek() (rune, bool) {
    and a token. Then it prints a syntax error.
 */
 func printError(lex *Lexer, msg string, token string) {
-	token = strings.Replace(token,"\n","\\n",-1)
-	if len(token) > 10{
+	token = strings.Replace(token, "\n", "\\n", -1)
+	if len(token) > 10 {
 		token = token[0:9]
 	}
 
-	fmt.Printf("Sytnax error: %s: Line %d: Token [%s]\n", msg,lex.lineno, token)
+	fmt.Printf("Sytnax error: %s: Line %d: Token [%s]\n", msg, lex.lineno, token)
 	//Eat tokens while until whitespace or seperator
 	//Should decrease likelyhood of cascading errors
 	lex.HasErrors = true
@@ -127,7 +126,7 @@ func (lex *Lexer) Tokenize() []common.Token {
 			resTokens = append(resTokens, tId)
 
 			//Operators
-		} else if isOp := isOperator(char); isOp > 0 { //+ - * / ^ % || && = < > <= >= == != !
+		} else if isOp := getOpType(string(char)); isOp != "NOA" { //+ - * / ^ % || && = < > <= >= == != !
 			tOp := lex.GetOp()
 			if Debug {
 				fmt.Printf("OP: %+v\n", tOp)
@@ -164,14 +163,49 @@ func (lex *Lexer) Tokenize() []common.Token {
 */
 
 func (lex *Lexer) GetOp() common.Token {
-	num, _ := lex.next()
-
-	//TODO rewrite this if statement it is ugly. Use some sort of Operator Map?
-	if next, hasNext := lex.peek(); isOperator(num) == 2 && hasNext && isDoubleOperator(string(num)+string(next)) {
-		_, _ = lex.next()
-		return common.Token{"op", string(num) + string(next), lex.lineno}
+	op, _ := lex.next()
+	op2, hasNext := lex.peek()
+	if new_op := getOpType(string(op) + string(op2)); hasNext && new_op != "NAO" {
+		_,_ = lex.next()
+		return common.Token{new_op,string(op) + string(op2),lex.lineno}
 	}
-	return common.Token{"op", string(num), lex.lineno}
+	if new_op := getOpType(string(op)); new_op == "Invalid" {
+		printError(lex,"not a valid operator",string(op))
+		return common.Token{}
+	}
+	return common.Token{getOpType(string(op)),string(op),lex.lineno}
+}
+
+func getOpType(op string) string{
+	switch op {
+	//Operators on Expressions
+	case "+": return "op"
+	case "-": return "op"
+	case "*": return "op"
+	case "/": return "op"
+	case "^": return "op"
+	case "!": return "op"
+	//Operators on Assignment Expressions
+	case "=": return "a_op"
+	case "+=": return "a_op"
+	case "-=": return "a_op"
+	case "*=": return "a_op"
+	case "/=": return "a_op"
+	case "^=": return "a_op"
+	//Operators on Conditional Expressions
+	case "==": return "c_op"
+	case "!=": return "c_op"
+	case "<": return "c_op"
+	case "<=": return "c_op"
+	case ">": return "c_op"
+	case ">=": return "c_op"
+	case "&&": return "c_op"
+	case "||": return "c_op"
+	//These need to exsist so that && and || can work
+	case "&": return "Placeholder"
+	case "|": return "Placeholder"
+	default: return "NAO"
+	}
 }
 
 /* getNum is a method of the Lexer that
@@ -204,8 +238,8 @@ func (lex *Lexer) GetNum() common.Token {
 func (lex *Lexer) getDecimal() string {
 	next, _ := lex.next()
 	res := string(next)
-	if num, hasNext := lex.peek(); !isDigit(num) || !hasNext{
-		printError(lex,"decimal point must be followed by number",string(num))
+	if num, hasNext := lex.peek(); !isDigit(num) || !hasNext {
+		printError(lex, "decimal point must be followed by number", string(num))
 		return ""
 	}
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
@@ -261,11 +295,11 @@ func (lex *Lexer) GetString() common.Token {
 			_, _ = lex.next()
 			return common.Token{"string", res, lex.lineno}
 		} else if char == '\\' {
-			tmp,_ := lex.next()
+			tmp, _ := lex.next()
 			if char, hasNext = lex.peek(); hasNext && char == '"' {
 				res = res + "\""
 				_, _ = lex.next()
-			}else{
+			} else {
 				res = res + string(tmp)
 			}
 		} else {
@@ -275,65 +309,6 @@ func (lex *Lexer) GetString() common.Token {
 	}
 	printError(lex, "string missing closing quote", res)
 	return common.Token{}
-}
-
-/* isDoubleOperator take a string operator and returns
-   a bool if it is valid doubleOperator
-*/
-func isDoubleOperator(op string) bool {
-	switch op {
-	case "||":
-		return true
-	case "&&":
-		return true
-	case "<=":
-		return true
-	case ">=":
-		return true
-	case "==":
-		return true
-	case "!=":
-		return true
-	default:
-		return false
-	}
-}
-
-/* isOperator takes a rune and returns and int
-   - returns 0 if its an invalid operator
-   - returns 1 if its a single operator
-   - returns 2 if it could be part of a compound operator
-   (compound operator: ==, !=, &&)
-*/
-func isOperator(char rune) int {
-	switch char {
-	case '+':
-		return 1
-	case '-':
-		return 1
-	case '*':
-		return 1
-	case '/':
-		return 1
-	case '^':
-		return 1
-	case '%':
-		return 1
-	case '|':
-		return 2
-	case '&':
-		return 2
-	case '=':
-		return 2
-	case '<':
-		return 2
-	case '>':
-		return 2
-	case '!':
-		return 2
-	default:
-		return 0
-	}
 }
 
 /* isSeparator takes a rune and returns a bool if it is a valid separator */
