@@ -256,13 +256,17 @@ func (lex *Lexer) GetString() common.Token {
 	_, _ = lex.next()
 	res := ""
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
+
 		if char == '"' {
 			_, _ = lex.next()
 			return common.Token{"string", res, lex.lineno}
 		} else if char == '\\' {
+			tmp,_ := lex.next()
 			if char, hasNext = lex.peek(); hasNext && char == '"' {
 				res = res + "\""
 				_, _ = lex.next()
+			}else{
+				res = res + string(tmp)
 			}
 		} else {
 			res = res + string(char)
