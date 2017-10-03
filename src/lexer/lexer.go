@@ -86,12 +86,11 @@ func printError(lex *Lexer, msg string, token string) {
 
 }
 
-/* Tokenize is a function that takes
-   a Lexer pointer and iterates over the Lexer taking identifying
-   runes and calling appropriate function to tokenize the identified
-   token.
+/* Tokenize is a method of Lexer that iterates over
+   the Lexer taking identifying runes and calling appropriate
+   function to tokenize the identified token.
 */
-func Tokenize(lex *Lexer) []common.Token {
+func (lex *Lexer) Tokenize() []common.Token {
 	resTokens := []common.Token{}
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		//New line
