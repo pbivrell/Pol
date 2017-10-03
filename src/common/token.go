@@ -8,4 +8,5 @@ package common
 type Token struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
+	Lineno int
 }
