@@ -77,7 +77,7 @@ func printError(lex *Lexer, msg string, token string) {
 	//Eat tokens while until whitespace or seperator
 	//Should decrease likelyhood of cascading errors
 	lex.HasErrors = true
-	//This causes problems with the new line count
+	//This causes problems with the new line count. TODO Revisit
 	/*for char, hasNext := lex.next(); hasNext && !((isSeparator(char)) || unicode.IsSpace(char)); char, hasNext = lex.next() {
 		if char == '\n'{
 			lex.lineno = lex.lineno + 1
@@ -136,7 +136,7 @@ func (lex *Lexer) Tokenize() []common.Token {
 
 			//Seperators
 		} else if isSeparator(char) {
-			tSeparator := common.Token{"Separator", string(char)}
+			tSeparator := common.Token{"Separator", string(char), lex.lineno}
 			if Debug {
 				fmt.Printf("Separator: %+v\n", tSeparator)
 			}
@@ -169,9 +169,9 @@ func (lex *Lexer) GetOp() common.Token {
 	//TODO rewrite this if statement it is ugly. Use some sort of Operator Map?
 	if next, hasNext := lex.peek(); isOperator(num) == 2 && hasNext && isDoubleOperator(string(num)+string(next)) {
 		_, _ = lex.next()
-		return common.Token{"op", string(num) + string(next)}
+		return common.Token{"op", string(num) + string(next), lex.lineno}
 	}
-	return common.Token{"op", string(num)}
+	return common.Token{"op", string(num), lex.lineno}
 }
 
 /* getNum is a method of the Lexer that
@@ -194,7 +194,7 @@ func (lex *Lexer) GetNum() common.Token {
 		}
 		_, _ = lex.next()
 	}
-	return common.Token{"num", res}
+	return common.Token{"num", res, lex.lineno}
 }
 
 /* getDecimal is a method of the Lexer that will eat all of the runes
@@ -238,7 +238,7 @@ func (lex *Lexer) GetID() common.Token {
 		_, _ = lex.next()
 		res = res + string(char)
 	}
-	return common.Token{"id", res}
+	return common.Token{"id", res, lex.lineno}
 }
 
 /* isID takes a rune returns bool if it is [0-9a-zA-Z] */
@@ -258,7 +258,7 @@ func (lex *Lexer) GetString() common.Token {
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
 		if char == '"' {
 			_, _ = lex.next()
-			return common.Token{"string", res}
+			return common.Token{"string", res, lex.lineno}
 		} else if char == '\\' {
 			if char, hasNext = lex.peek(); hasNext && char == '"' {
 				res = res + "\""
