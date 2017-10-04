@@ -4,16 +4,17 @@ import "encoding/json"
 import "os"
 
 //TODO Make this generic so it can turn any slice of structs into JSON
-func WriteJSON(toks []Token, file string)  {
+func WriteJSON(toks []Token, file string) {
 	//Convert Exported struct Token to Json
 	jsonData, err := json.Marshal(toks)
+	
 	if err != nil {
 		panic(err)
 	}
 
 	fh, errw := os.Create(file)
-    //Defer = do this code when function returns
-    defer fh.Close()
+	//Defer = do this code when function returns
+	defer fh.Close()
 	if err != nil {
 		panic(errw)
 	}

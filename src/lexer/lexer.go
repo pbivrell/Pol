@@ -3,7 +3,8 @@ package lexer
 import "fmt"
 import "unicode"
 import "strings"
-import "common"
+//Local libs
+import "../common"
 
 /* Set by command line arguments. Enables non-error print statements */
 var Debug = false
@@ -169,7 +170,7 @@ func (lex *Lexer) GetOp() common.Token {
 		_,_ = lex.next()
 		return common.Token{new_op,string(op) + string(op2),lex.lineno}
 	}
-	if new_op := getOpType(string(op)); new_op == "Invalid" {
+	if new_op := getOpType(string(op)); new_op == "Placeholder" {
 		printError(lex,"not a valid operator",string(op))
 		return common.Token{}
 	}
@@ -179,19 +180,19 @@ func (lex *Lexer) GetOp() common.Token {
 func getOpType(op string) string{
 	switch op {
 	//Operators on Expressions
-	case "+": return "op"
-	case "-": return "op"
-	case "*": return "op"
-	case "/": return "op"
-	case "^": return "op"
-	case "!": return "op"
+	case "+": return "t_op"
+	case "-": return "t_op"
+	case "*": return "f_op"
+	case "/": return "f_op"
+	case "^": return "f_op"
+	case "%": return "f_op"
+	case "!": return "u_op"
 	//Operators on Assignment Expressions
 	case "=": return "a_op"
 	case "+=": return "a_op"
 	case "-=": return "a_op"
 	case "*=": return "a_op"
 	case "/=": return "a_op"
-	case "^=": return "a_op"
 	//Operators on Conditional Expressions
 	case "==": return "c_op"
 	case "!=": return "c_op"
