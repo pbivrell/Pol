@@ -3,6 +3,7 @@ package lexer
 import "fmt"
 import "unicode"
 import "strings"
+
 //Local libs
 import "../common"
 
@@ -127,7 +128,7 @@ func (lex *Lexer) Tokenize() []common.Token {
 			resTokens = append(resTokens, tId)
 
 			//Operators
-		} else if isOp := getOpType(string(char)); isOp != "NOA" { //+ - * / ^ % || && = < > <= >= == != !
+		} else if isOp := getOpType(string(char)); isOp != "NAO" { //+ - * / ^ % || && = < > <= >= == != !
 			tOp := lex.GetOp()
 			if Debug {
 				fmt.Printf("OP: %+v\n", tOp)
@@ -167,45 +168,68 @@ func (lex *Lexer) GetOp() common.Token {
 	op, _ := lex.next()
 	op2, hasNext := lex.peek()
 	if new_op := getOpType(string(op) + string(op2)); hasNext && new_op != "NAO" {
-		_,_ = lex.next()
-		return common.Token{new_op,string(op) + string(op2),lex.lineno}
+		_, _ = lex.next()
+		return common.Token{new_op, string(op) + string(op2), lex.lineno}
 	}
 	if new_op := getOpType(string(op)); new_op == "Placeholder" {
-		printError(lex,"not a valid operator",string(op))
+		printError(lex, "not a valid operator", string(op))
 		return common.Token{}
 	}
-	return common.Token{getOpType(string(op)),string(op),lex.lineno}
+	return common.Token{getOpType(string(op)), string(op), lex.lineno}
 }
 
-func getOpType(op string) string{
+func getOpType(op string) string {
 	switch op {
 	//Operators on Expressions
-	case "+": return "t_op"
-	case "-": return "t_op"
-	case "*": return "f_op"
-	case "/": return "f_op"
-	case "^": return "f_op"
-	case "%": return "f_op"
-	case "!": return "u_op"
+	case "+":
+		return "t_op"
+	case "-":
+		return "t_op"
+	case "*":
+		return "f_op"
+	case "/":
+		return "f_op"
+	case "^":
+		return "f_op"
+	case "%":
+		return "f_op"
+	case "!":
+		return "u_op"
 	//Operators on Assignment Expressions
-	case "=": return "a_op"
-	case "+=": return "a_op"
-	case "-=": return "a_op"
-	case "*=": return "a_op"
-	case "/=": return "a_op"
+	case "=":
+		return "a_op"
+	case "+=":
+		return "a_op"
+	case "-=":
+		return "a_op"
+	case "*=":
+		return "a_op"
+	case "/=":
+		return "a_op"
 	//Operators on Conditional Expressions
-	case "==": return "c_op"
-	case "!=": return "c_op"
-	case "<": return "c_op"
-	case "<=": return "c_op"
-	case ">": return "c_op"
-	case ">=": return "c_op"
-	case "&&": return "c_op"
-	case "||": return "c_op"
+	case "==":
+		return "c_op"
+	case "!=":
+		return "c_op"
+	case "<":
+		return "c_op"
+	case "<=":
+		return "c_op"
+	case ">":
+		return "c_op"
+	case ">=":
+		return "c_op"
+	case "&&":
+		return "c_op"
+	case "||":
+		return "c_op"
 	//These need to exsist so that && and || can work
-	case "&": return "Placeholder"
-	case "|": return "Placeholder"
-	default: return "NAO"
+	case "&":
+		return "Placeholder"
+	case "|":
+		return "Placeholder"
+	default:
+		return "NAO"
 	}
 }
 

@@ -7,7 +7,7 @@ import "strings"
 
 //Local Libs
 import "../lexer"
-//import "../parser"
+import "../parser"
 import "../common"
 
 /* Pol main */
@@ -19,6 +19,7 @@ func main() {
 
 	if len(os.Args) == 3 {
 		lexer.Debug = true
+		parser.Debug = true
 	}
 
 	//Read input file
@@ -40,6 +41,10 @@ func main() {
 	file := "." + strings.Split(strings.Split(os.Args[1], "/")[len(strings.Split(os.Args[1], "/"))-1], ".pol")[0] + ".lex_pol"
 	common.WriteJSON(tokens, file)
 
-//	absTree := parser.Parse(parser.NewTokens(tokens))
-	//fmt.Println(absTree)
+	absTree := parser.Parse(parser.NewTokens(tokens))
+	if parser.HasErrors {
+		fmt.Println("Pol: Fix errors above before continuing")
+		return
+	}
+	absTree.PrettyPrint()
 }
