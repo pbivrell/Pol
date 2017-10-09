@@ -3,17 +3,17 @@ POL Version 1.0 - Operators
 ============================================================
 ---BNF Grammar---
 
-<stmt> ::= <asgn-expr> | <expr> | <cond-expr>
+<stmt> ::= <asgn-expr> | <cond-expr>
 
-<asgn-expr> ::= ID = <expr>
+<asgn-expr> ::= <cond-expr> (( = | += | -= | *= | /= | ^= ) <cond_expr>) *
 
 <cond-expr> ::= <expr> (( && | || | == | != | <= | >= | < | >) <expr>)*
 
-<expr> ::= term (( + | - ) term)*
+<expr> ::= <term> (( + | - ) <term>)*
 
-<term> ::= factor (( * | / | % | ^) factor)*
+<term> ::= <factor> (( * | / | % | ^) <factor>)*
 
-<factor> ::= ( - | ! ) <factor> | ID | NUM | STR | BOOL | (<expr>)
+<factor> ::= - <factor> | ! <cond-expr> | ID | NUM | STR | (<expr>)
 
 --- Terminal Definitions ---
 ID ::= [A-Za-z][A-Za-z0-9]*
@@ -22,12 +22,10 @@ NUM ::= [0-9]+(.[0-9]+)?
 
 STR ::= ".*"
 
-BOOL ::= true|false
-
 ============================================================
 POL Version 2.0 - Control Flow and Scope
 ============================================================
-Blocks {} 
+Blocks {}
 if
 else
 elif
@@ -37,4 +35,4 @@ while
 ============================================================
 POL Version 3.0 - Fun Features and Optimization
 ============================================================
-Data structures: cons cells and associative arrays 
+Data structures: cons cells and associative arrays

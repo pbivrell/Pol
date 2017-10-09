@@ -10,3 +10,8 @@ type Token struct {
 	Value  string `json:"value"`
 	Lineno int
 }
+
+
+func (t Token) String() string {
+	return t.Value;
+}

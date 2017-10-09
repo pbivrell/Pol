@@ -127,7 +127,7 @@ func (lex *Lexer) Tokenize() []common.Token {
 			resTokens = append(resTokens, tId)
 
 			//Operators
-		} else if isOp := getOpType(string(char)); isOp != "NOA" { //+ - * / ^ % || && = < > <= >= == != !
+		} else if isOp := getOpType(string(char)); isOp != "NAO" { //+ - * / ^ % || && = < > <= >= == != !
 			tOp := lex.GetOp()
 			if Debug {
 				fmt.Printf("OP: %+v\n", tOp)
