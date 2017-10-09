@@ -7,7 +7,7 @@ import "os"
 func WriteJSON(toks []Token, file string) {
 	//Convert Exported struct Token to Json
 	jsonData, err := json.Marshal(toks)
-	
+
 	if err != nil {
 		panic(err)
 	}

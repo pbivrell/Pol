@@ -11,7 +11,6 @@ type Token struct {
 	Lineno int
 }
 
-
 func (t Token) String() string {
-	return t.Value;
+	return t.Value
 }

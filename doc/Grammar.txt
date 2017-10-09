@@ -3,7 +3,7 @@ POL Version 1.0 - Operators
 ============================================================
 ---BNF Grammar---
 
-<stmt> ::= <asgn-expr> | <cond-expr>
+<stmt> ::= <asgn-expr> ;
 
 <asgn-expr> ::= <cond-expr> (( = | += | -= | *= | /= | ^= ) <cond_expr>) *
 
