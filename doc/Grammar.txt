@@ -25,14 +25,61 @@ STR ::= ".*"
 ============================================================
 POL Version 2.0 - Control Flow and Scope
 ============================================================
-Blocks {}
-if
-else
-elif
-function call
-while
+<compliation_unit> ::= (<func_declaration> | <declaration>)+
+
+<declaration> ::= <identifier-list> (ASSIGNMENT_OP <initalization_list>);
+                | <array-definition> ( = [ <initalization-list> ] ) ;
+                | <map-def> ( = {<initalization-list>}) ;
+
+<array-definition> ::= <identifier>[]
+
+<map-definition> ::= <identifier>{}
+
+<identfier-list> ::= <identifier> ( , <identifier> )*
+
+<initalization-list> ::= <comp_expr> ( , <comp_expr> )*
+
+<hash-intialization-list ::= [<comp_expr>, <comp_expr>] (, [<comp_expr>, <comp_expr>])*
+
+<type-definition> ::= <identifier> | &<identifier>
+
+<parameter-list> ::= <type-definitation> ( , <type-definitation>)*
+
+<function-definition> ::= <identifier> ( <parameter-list> ) <body>
+
+<body> ::= { <stmt>* }
+
+<stmt> := <select_stmt> | <iterate_stmt> | <control_stmt> | <cond_expr> | <declartion>
+
+<select-stmt> ::= if (<cond_expr>) <body> | if(<cond_expr>) <body> else <select-stmt> | if(<cond-expr) <body> else <body>
+
+<iterate-stmt> ::= while(<cond-expr>) <body> | for(<asgn_expr>? <asgn_expr>? <asgn_expr>?) <body>
+
+<control-stmt> ::= break; | continue; | return cond_expr? ;
+
+<cond-expr> ::= <add-expr> (( && | || | == | != | <= | >= | < | >) <add-expr>)*
+
+<add-expr> ::= <mult-expr> (( + | - ) <mult-expr>)*
+
+<mult-expr> ::= <unary-expr> (( * | / | % | ^) <unary-expr>)*
+
+<unary-expr> ::= - <atom> | ! <atom> | <atom>
+
+atom ::= <identifier>
+       | primative
+       | (<expr>)
+       | <identifier>[ <cond_expr> ]
+       | <identifer>{ <cond_expr> }
+
+primative ::= int | bool | string | char | float
+
+<identifier> ::= [A-z][A-z0-9]*
 
 ============================================================
 POL Version 3.0 - Fun Features and Optimization
 ============================================================
-Data structures: cons cells and associative arrays
+Add Type concept!
+
+<compliation_unit> ::= <import_stmt>* <type_declaration>? <func_declaration>+
+<import_stmt> ::= import <identifier> ;
+<type_declaration> ::= type <identifier> { (<type> <identifier> ; )+ }
