@@ -15,7 +15,7 @@ import "../parser"
 
 /* Pol main */
 func main() {
-	if len(os.Args) < 3 {
+	if len(os.Args) < 2 {
 		fmt.Printf("Usage: %s [.pol src file]\n", os.Args[0])
 		os.Exit(-1)
 	}
