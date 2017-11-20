@@ -21,7 +21,7 @@ func main() {
 	}
 
 	if len(os.Args) == 4 {
-		lexer.Debug,_ = strconv.Atoi(os.Args[3])
+		lexer.Debug, _ = strconv.Atoi(os.Args[3])
 		parser.Debug, _ = strconv.Atoi(os.Args[2])
 	}
 

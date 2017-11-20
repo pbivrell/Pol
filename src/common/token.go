@@ -48,21 +48,20 @@ const (
 	LEFT_BRACE    = "LEFT_BRACE"
 	RIGHT_BRACE   = "RIGHT_BRACE"
 
-
 	//TREE TOKENS
-	TREE_ROOT                = "POL"
-	TREE_MAIN                = "MAIN"
-	TREE_FUNC                = "FUNC"
-	TREE_GLOBAL              = "GLOBAL"
-	TREE_BODY                = "BODY"
-	TREE_ARGS                = "ARGS"
-	TREE_TEMP                = "TEMP"
+	TREE_ROOT      = "POL"
+	TREE_MAIN      = "MAIN"
+	TREE_FUNC      = "FUNC"
+	TREE_GLOBAL    = "GLOBAL"
+	TREE_BODY      = "BODY"
+	TREE_ARGS      = "ARGS"
+	TREE_TEMP      = "TEMP"
 	TREE_INIT_LIST = "INIT_LIST"
-	TREE_LOOK_UP			 = "LOOK_UP"
-	HASH = "HASH"
-	ARRAY = "ARRAY"
-	PRIMATIVE = "PRIMATIVE"
-	INDEX = "INDEX"
+	TREE_LOOK_UP   = "LOOK_UP"
+	HASH           = "HASH"
+	ARRAY          = "ARRAY"
+	PRIMATIVE      = "PRIMATIVE"
+	INDEX          = "INDEX"
 )
 
 type Token struct {

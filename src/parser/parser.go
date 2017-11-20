@@ -6,7 +6,6 @@ import "strconv"
 //Local libs
 import "../common"
 
-
 var Debug = 0
 var HasErrors = false
 var prevError = ""
@@ -14,7 +13,6 @@ var prevError = ""
 //This is a hacky solution to my array indexing problem
 //I don't like it but so be it
 var index = 0
-
 
 //TODO create so sort of generic iterator structure
 //for code from line 8-32 this code is practically
@@ -85,12 +83,12 @@ func printDebug(message string, priority int) {
 	}
 }
 
-func dPeek(tokens *Tokens) string{
-	ret,_ := tokens.peek()
+func dPeek(tokens *Tokens) string {
+	ret, _ := tokens.peek()
 	return "[ token " + ret.String() + " ]"
 }
 
-func printTreebug(tree *common.Tree, msg string, priority int){
+func printTreebug(tree *common.Tree, msg string, priority int) {
 	printDebug(msg, priority)
 	if Debug >= priority {
 		tree.PrettyPrint()
@@ -129,8 +127,8 @@ func Parse(tokens *Tokens) *common.Tree {
 }
 
 func listify(tokens *Tokens, fn func(*Tokens, bool) *common.Tree) []*common.Tree {
-	printDebug("Entering listify " + dPeek(tokens),5)
-	defer printDebug("Exiting listify" ,5)
+	printDebug("Entering listify "+dPeek(tokens), 5)
+	defer printDebug("Exiting listify", 5)
 	results := make([]*common.Tree, 0)
 	first := fn(tokens, false)
 	if first.IsInvalidTree() {
@@ -141,14 +139,14 @@ func listify(tokens *Tokens, fn func(*Tokens, bool) *common.Tree) []*common.Tree
 	printDebug("This should be a comma: "+next.String(), 1)
 
 	for next, hasNext := tokens.peek(); hasNext && next.Type == common.COMMA; next, hasNext = tokens.peek() {
-		_,_ = tokens.next()
+		_, _ = tokens.next()
 		results = append(results, fn(tokens, true))
 	}
 
-	printDebug("Printing Generated List",9)
+	printDebug("Printing Generated List", 9)
 	if Debug >= 9 {
 		for index, next := range results {
-			fmt.Printf("Index %d\n",index)
+			fmt.Printf("Index %d\n", index)
 			next.PrettyPrint()
 		}
 	}
@@ -156,8 +154,8 @@ func listify(tokens *Tokens, fn func(*Tokens, bool) *common.Tree) []*common.Tree
 }
 
 func compilation_unit(tokens *Tokens) (*common.Tree, int) {
-	printDebug("Entering compilation_unit" + dPeek(tokens),5)
-	defer printDebug("Exiting compilation_unit" ,5)
+	printDebug("Entering compilation_unit"+dPeek(tokens), 5)
+	defer printDebug("Exiting compilation_unit", 5)
 	node := common.MakeInvalidTree()
 
 	id, hasNext := tokens.peek()
@@ -178,8 +176,8 @@ func compilation_unit(tokens *Tokens) (*common.Tree, int) {
 }
 
 func funcDef(tokens *Tokens) *common.Tree {
-	printDebug("Entering funcDef" + dPeek(tokens),5)
-	defer printDebug("Exiting funcDef" ,5)
+	printDebug("Entering funcDef"+dPeek(tokens), 5)
+	defer printDebug("Exiting funcDef", 5)
 	if !expect(common.IDENTIFIER, tokens) {
 		return common.MakeInvalidTree()
 	}
@@ -198,49 +196,48 @@ func funcDef(tokens *Tokens) *common.Tree {
 }
 
 func arguments(tokens *Tokens) *common.Tree {
-	printDebug("Entering arguments" + dPeek(tokens),5)
-	defer printDebug("Exiting argument" ,5)
+	printDebug("Entering arguments"+dPeek(tokens), 5)
+	defer printDebug("Exiting argument", 5)
 	expect(common.LEFT_PAREN, tokens)
 	_, _ = tokens.next()
 	node := common.MakeTree(&common.Token{common.TREE_ARGS, "ARGS", -1})
-	args := listify(tokens,listify_idOrRef)
+	args := listify(tokens, listify_idOrRef)
 	for _, next := range args {
 		node = node.Append(next)
 	}
 	expect(common.RIGHT_PAREN, tokens)
 
-	a,_ := tokens.next()
-	fmt.Printf("TEST %s\n",a)
-	printTreebug(node,"Arguments to function",9)
+	a, _ := tokens.next()
+	fmt.Printf("TEST %s\n", a)
+	printTreebug(node, "Arguments to function", 9)
 	return node
 }
 
-
 func body(tokens *Tokens) *common.Tree {
-	printDebug("Entering body" + dPeek(tokens),5)
-	defer printDebug("Exiting body",5)
+	printDebug("Entering body"+dPeek(tokens), 5)
+	defer printDebug("Exiting body", 5)
 
-	if !expect(common.LEFT_BRACE,tokens){
+	if !expect(common.LEFT_BRACE, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
-	body := common.MakeTree(&common.Token{common.TREE_BODY,"BODY",-1})
+	body := common.MakeTree(&common.Token{common.TREE_BODY, "BODY", -1})
 
 	for next, hasNext := tokens.peek(); hasNext && next.Type != common.RIGHT_BRACE; next, hasNext = tokens.peek() {
-		body  = body.Append(single_body(tokens))
+		body = body.Append(single_body(tokens))
 	}
 
-	_,_ = tokens.next()
-	printTreebug(body,"Body of function",9)
+	_, _ = tokens.next()
+	printTreebug(body, "Body of function", 9)
 
 	return body
 }
 
 func single_body(tokens *Tokens) *common.Tree {
-	printDebug("Entering single_body" + dPeek(tokens),5)
-	defer printDebug("Exiting single_body",5)
+	printDebug("Entering single_body"+dPeek(tokens), 5)
+	defer printDebug("Exiting single_body", 5)
 
 	first, _ := tokens.next()
 	second, _ := tokens.peek()
@@ -248,15 +245,15 @@ func single_body(tokens *Tokens) *common.Tree {
 
 	if first.Type == common.IDENTIFIER && second.Type == common.LEFT_PAREN {
 		return getFuncCall(tokens)
-	}else if first.Type == common.IDENTIFIER {
+	} else if first.Type == common.IDENTIFIER {
 		return declaration(tokens)
-	}else if first.Type == common.IF {
+	} else if first.Type == common.IF {
 		return getIfStatement(tokens)
-	}else if first.Type == common.FOR {
+	} else if first.Type == common.FOR {
 		return getForStatement(tokens)
-	}else if first.Type == common.WHILE {
+	} else if first.Type == common.WHILE {
 		return getWhileStatment(tokens)
-	}else if node := getControlFlow(tokens); !node.IsInvalidTree(){
+	} else if node := getControlFlow(tokens); !node.IsInvalidTree() {
 		return node
 	}
 
@@ -264,28 +261,28 @@ func single_body(tokens *Tokens) *common.Tree {
 }
 
 func getIfStatement(tokens *Tokens) *common.Tree {
-	printDebug("Entering getIfStatement" + dPeek(tokens),5)
-	defer printDebug("Exiting getIfStatement",5)
+	printDebug("Entering getIfStatement"+dPeek(tokens), 5)
+	defer printDebug("Exiting getIfStatement", 5)
 
-	if !expect(common.IF,tokens){
+	if !expect(common.IF, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	ifTok,_ := tokens.next()
+	ifTok, _ := tokens.next()
 
-	if !expect(common.LEFT_PAREN,tokens){
+	if !expect(common.LEFT_PAREN, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	expr := expression(tokens)
 
-	if !expect(common.RIGHT_PAREN,tokens){
+	if !expect(common.RIGHT_PAREN, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	body := body(tokens)
 
@@ -309,7 +306,7 @@ func getElseStatment(tokens *Tokens) *common.Tree {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	isIf, _ := tokens.peek()
 
@@ -321,8 +318,8 @@ func getElseStatment(tokens *Tokens) *common.Tree {
 }
 
 func getForStatement(tokens *Tokens) *common.Tree {
-	printDebug("Entering forStatement" + dPeek(tokens),5)
-	defer printDebug("Exiting forStatement",5)
+	printDebug("Entering forStatement"+dPeek(tokens), 5)
+	defer printDebug("Exiting forStatement", 5)
 	if !expect(common.FOR, tokens) {
 		return common.MakeInvalidTree()
 	}
@@ -331,31 +328,31 @@ func getForStatement(tokens *Tokens) *common.Tree {
 
 	node := common.MakeTree(forTok)
 
-	if !expect(common.LEFT_PAREN,tokens){
+	if !expect(common.LEFT_PAREN, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	init := forInit(tokens)
 
-	if !expect(common.SEMI_COLON,tokens){
+	if !expect(common.SEMI_COLON, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	cond := forExpress(tokens)
-	if !expect(common.SEMI_COLON,tokens){
+	if !expect(common.SEMI_COLON, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	incr := forInit(tokens)
 
-	if !expect(common.RIGHT_PAREN,tokens){
+	if !expect(common.RIGHT_PAREN, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	body := body(tokens)
 
@@ -368,8 +365,8 @@ func getForStatement(tokens *Tokens) *common.Tree {
 }
 
 func forInit(tokens *Tokens) *common.Tree {
-	printDebug("Entering forInit" + dPeek(tokens),5)
-	defer printDebug("Exiting forInit",5)
+	printDebug("Entering forInit"+dPeek(tokens), 5)
+	defer printDebug("Exiting forInit", 5)
 
 	next, _ := tokens.peek()
 	if next.Type == common.SEMI_COLON {
@@ -379,8 +376,8 @@ func forInit(tokens *Tokens) *common.Tree {
 }
 
 func forExpress(tokens *Tokens) *common.Tree {
-	printDebug("Entering forExpress" + dPeek(tokens),5)
-	defer printDebug("Exiting forExpress",5)
+	printDebug("Entering forExpress"+dPeek(tokens), 5)
+	defer printDebug("Exiting forExpress", 5)
 	next, _ := tokens.peek()
 	if next.Type == common.SEMI_COLON {
 		return common.MakeTree(&common.Token{common.ZERO_VALUE, "EMPTY", -1})
@@ -389,28 +386,28 @@ func forExpress(tokens *Tokens) *common.Tree {
 }
 
 func getWhileStatment(tokens *Tokens) *common.Tree {
-	printDebug("Entering whileStatment" + dPeek(tokens),5)
-	defer printDebug("Exiting whileStatment",5)
+	printDebug("Entering whileStatment"+dPeek(tokens), 5)
+	defer printDebug("Exiting whileStatment", 5)
 
-	if !expect(common.WHILE,tokens){
+	if !expect(common.WHILE, tokens) {
 		return common.MakeInvalidTree()
 	}
 
 	whileTok, _ := tokens.next()
 
-	if !expect(common.LEFT_PAREN,tokens){
+	if !expect(common.LEFT_PAREN, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	cond := expression(tokens)
 
-	if !expect(common.RIGHT_PAREN,tokens){
+	if !expect(common.RIGHT_PAREN, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	body := body(tokens)
 
@@ -423,19 +420,19 @@ func getWhileStatment(tokens *Tokens) *common.Tree {
 }
 
 func getControlFlow(tokens *Tokens) *common.Tree {
-	printDebug("Entering getControlFlow" + dPeek(tokens),5)
-	defer printDebug("Exiting getControlFlow",5)
+	printDebug("Entering getControlFlow"+dPeek(tokens), 5)
+	defer printDebug("Exiting getControlFlow", 5)
 
-	nodeTok,_ := tokens.peek()
+	nodeTok, _ := tokens.peek()
 	if nodeTok.Type == common.CONTINUE {
-		_,_ = tokens.next()
-		return common.MakeTree(&common.Token{common.CONTINUE,"CONTINUE",-1})
-	}else if nodeTok.Type == common.BREAK{
-		_,_ = tokens.next()
-		return common.MakeTree(&common.Token{common.BREAK,"BREAK",-1})
-	}else if nodeTok.Type == common.RETURN{
-		retVal := common.MakeTree(&common.Token{common.RETURN,"RETURN",-1})
-		_,_ = tokens.next()
+		_, _ = tokens.next()
+		return common.MakeTree(&common.Token{common.CONTINUE, "CONTINUE", -1})
+	} else if nodeTok.Type == common.BREAK {
+		_, _ = tokens.next()
+		return common.MakeTree(&common.Token{common.BREAK, "BREAK", -1})
+	} else if nodeTok.Type == common.RETURN {
+		retVal := common.MakeTree(&common.Token{common.RETURN, "RETURN", -1})
+		_, _ = tokens.next()
 		expr := expression(tokens)
 		retVal = retVal.Append(expr)
 		return retVal
@@ -444,21 +441,21 @@ func getControlFlow(tokens *Tokens) *common.Tree {
 	return common.MakeInvalidTree()
 }
 
-func listify_idOrRef(tokens *Tokens, verbose bool) *common.Tree{
-	printDebug("Entering listify_idOrRef" + dPeek(tokens),5)
-	defer printDebug("Exiting listify_idOrRef",5)
+func listify_idOrRef(tokens *Tokens, verbose bool) *common.Tree {
+	printDebug("Entering listify_idOrRef"+dPeek(tokens), 5)
+	defer printDebug("Exiting listify_idOrRef", 5)
 	err := "Expecting identifier or reference"
 	token, _ := tokens.peek()
 	node := common.MakeTree(token)
-	if token.Type == common.IDENTIFIER{
-		_,_ = tokens.next()
+	if token.Type == common.IDENTIFIER {
+		_, _ = tokens.next()
 		return node
 	} else if token.Type == common.REFRENCE_OP {
-		_,_ = tokens.next()
+		_, _ = tokens.next()
 		next, _ := tokens.next()
 		if next.Type != common.IDENTIFIER {
 			err = "identifier expected after reference op"
-		}else{
+		} else {
 			return node.Append(common.MakeTree(next))
 		}
 	}
@@ -468,10 +465,9 @@ func listify_idOrRef(tokens *Tokens, verbose bool) *common.Tree{
 	return common.MakeInvalidTree()
 }
 
-
 func declaration(tokens *Tokens) *common.Tree {
-	printDebug("Entering declaration" + dPeek(tokens),5)
-	defer printDebug("Exiting declaration",5)
+	printDebug("Entering declaration"+dPeek(tokens), 5)
+	defer printDebug("Exiting declaration", 5)
 	node := common.MakeInvalidTree()
 	if !expect(common.IDENTIFIER, tokens) {
 		return node
@@ -489,8 +485,8 @@ func declaration(tokens *Tokens) *common.Tree {
 }
 
 func collection_assignment(tokens *Tokens) *common.Tree {
-	printDebug("Entering collection_assignment" + dPeek(tokens),5)
-	defer printDebug("Exiting collection_assignment",5)
+	printDebug("Entering collection_assignment"+dPeek(tokens), 5)
+	defer printDebug("Exiting collection_assignment", 5)
 	if !expect(common.IDENTIFIER, tokens) {
 		return common.MakeInvalidTree()
 	}
@@ -506,10 +502,10 @@ func collection_assignment(tokens *Tokens) *common.Tree {
 
 	lookUpNode := getLookUp(tokens)
 
-	if !expect(common.ASSIGNMENT_OP, tokens){
+	if !expect(common.ASSIGNMENT_OP, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	rhs := expression(tokens)
 
@@ -522,8 +518,8 @@ func collection_assignment(tokens *Tokens) *common.Tree {
 }
 
 func collection_declaration(tokens *Tokens) *common.Tree {
-	printDebug("Entering collection_declaration" + dPeek(tokens),5)
-	defer printDebug("Exiting collection_declaration",5)
+	printDebug("Entering collection_declaration"+dPeek(tokens), 5)
+	defer printDebug("Exiting collection_declaration", 5)
 	if !expect(common.IDENTIFIER, tokens) {
 		return common.MakeInvalidTree()
 	}
@@ -539,46 +535,46 @@ func collection_declaration(tokens *Tokens) *common.Tree {
 		LISTIFY = listify_array
 		LIST_START = common.LEFT_BRACKET
 		LIST_END = common.RIGHT_BRACKET
-	}else if op.Type != common.HASH_OP{
+	} else if op.Type != common.HASH_OP {
 		tokens.prev()
 		return common.MakeInvalidTree()
 	}
 
-	idNode := common.MakeTree(&common.Token{TREE_TYPE,id.Value,id.Lineno})
-	_,_ = tokens.next()
+	idNode := common.MakeTree(&common.Token{TREE_TYPE, id.Value, id.Lineno})
+	_, _ = tokens.next()
 
 	next, _ := tokens.peek()
 	if next.Type != common.ASSIGNMENT_OP {
 		lhs := make([]*common.Tree, 0)
-		lhs = append(lhs,idNode)
+		lhs = append(lhs, idNode)
 		return createInitalizationTree(lhs, make([]*common.Tree, 0), &common.Token{common.ASSIGNMENT_OP, "=", -1})
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
-	if !expect(LIST_START,tokens){
+	if !expect(LIST_START, tokens) {
 		//Invalid but we successfully attempted to eat an init list it was just malformed
-		return common.MakeTree(&common.Token{common.TREE_TEMP,"BAD",-1})
+		return common.MakeTree(&common.Token{common.TREE_TEMP, "BAD", -1})
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	pair := listify(tokens, LISTIFY)
 	index = 0
 
-	if !expect(LIST_END,tokens){
+	if !expect(LIST_END, tokens) {
 		//Invalid but we successfully attempted to eat an init list it was just malformed
-		return common.MakeTree(&common.Token{common.TREE_TEMP,"BAD",-1})
+		return common.MakeTree(&common.Token{common.TREE_TEMP, "BAD", -1})
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	lhs := make([]*common.Tree, 0)
 	rhs := make([]*common.Tree, 0)
 
-	for _,next := range pair {
-		single_lhs, single_rhs := createCollectionPair(next,idNode)
-		lhs = append(lhs,single_lhs)
-		rhs = append(rhs,single_rhs)
+	for _, next := range pair {
+		single_lhs, single_rhs := createCollectionPair(next, idNode)
+		lhs = append(lhs, single_lhs)
+		rhs = append(rhs, single_rhs)
 	}
 
 	return createInitalizationTree(lhs, rhs, &common.Token{common.ASSIGNMENT_OP, "=", -1})
@@ -586,42 +582,42 @@ func collection_declaration(tokens *Tokens) *common.Tree {
 }
 
 func createCollectionPair(pair *common.Tree, id *common.Tree) (*common.Tree, *common.Tree) {
-	printDebug("Entering createCollectionPair",5)
-	defer printDebug("Exiting createCollectionPair" ,5)
+	printDebug("Entering createCollectionPair", 5)
+	defer printDebug("Exiting createCollectionPair", 5)
 
 	children := pair.GetChildren()
-	printDebug("Key: " + children[0].String(),5)
-	lhs := createLookUpTree(id,&children[0])
-	printDebug("Value: " + children[1].String(),5)
+	printDebug("Key: "+children[0].String(), 5)
+	lhs := createLookUpTree(id, &children[0])
+	printDebug("Value: "+children[1].String(), 5)
 	rhs := &children[1]
 	return lhs, rhs
 }
 
-func listify_hash(tokens *Tokens, verbose bool) *common.Tree{
-	printDebug("Entering listify_hash" + dPeek(tokens),5)
-	defer printDebug("Exiting listify_hash" ,5)
+func listify_hash(tokens *Tokens, verbose bool) *common.Tree {
+	printDebug("Entering listify_hash"+dPeek(tokens), 5)
+	defer printDebug("Exiting listify_hash", 5)
 
-	if !expect(common.LEFT_BRACKET,tokens) {
+	if !expect(common.LEFT_BRACKET, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	key := expression(tokens)
 
-	if !expect(common.COMMA,tokens) {
+	if !expect(common.COMMA, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	value := expression(tokens)
 
-	if !expect(common.RIGHT_BRACKET,tokens){
+	if !expect(common.RIGHT_BRACKET, tokens) {
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
-	node := common.MakeTree(&common.Token{common.TREE_TEMP,"TEMP",-1})
+	node := common.MakeTree(&common.Token{common.TREE_TEMP, "TEMP", -1})
 	node = node.Append(key)
 	node = node.Append(value)
 
@@ -629,21 +625,21 @@ func listify_hash(tokens *Tokens, verbose bool) *common.Tree{
 }
 
 func listify_array(tokens *Tokens, verbose bool) *common.Tree {
-	printDebug("Entering listify_array" + dPeek(tokens),5)
-	defer printDebug("Exiting listify_array" ,5)
+	printDebug("Entering listify_array"+dPeek(tokens), 5)
+	defer printDebug("Exiting listify_array", 5)
 
 	value := expression(tokens)
 
-	node := common.MakeTree(&common.Token{common.TREE_TEMP,"TEMP",-1})
-	node = node.Append(common.MakeTree(&common.Token{common.INDEX,strconv.Itoa(index),-1}))
+	node := common.MakeTree(&common.Token{common.TREE_TEMP, "TEMP", -1})
+	node = node.Append(common.MakeTree(&common.Token{common.INDEX, strconv.Itoa(index), -1}))
 	node = node.Append(value)
 	index = index + 1
 	return node
 }
 
 func var_declaration(tokens *Tokens) *common.Tree {
-	printDebug("Entering var_declaration" + dPeek(tokens),5)
-	defer printDebug("Exiting var_declaration",5)
+	printDebug("Entering var_declaration"+dPeek(tokens), 5)
+	defer printDebug("Exiting var_declaration", 5)
 	if !expect(common.IDENTIFIER, tokens) {
 		return common.MakeInvalidTree()
 	}
@@ -652,7 +648,7 @@ func var_declaration(tokens *Tokens) *common.Tree {
 	op, _ := tokens.peek()
 	printDebug("This should not be an identifier: "+op.String(), 1)
 	if op.Type == common.ASSIGNMENT_OP {
-		_,_ = tokens.next()
+		_, _ = tokens.next()
 		rhs := listify(tokens, listify_expression)
 		return createInitalizationTree(lhs, rhs, op)
 	}
@@ -660,8 +656,8 @@ func var_declaration(tokens *Tokens) *common.Tree {
 }
 
 func createInitalizationTree(lhs []*common.Tree, rhs []*common.Tree, op *common.Token) *common.Tree {
-	printDebug("Entering createInitalizationTree",5)
-	defer printDebug("Exiting createInitalizationTree",5)
+	printDebug("Entering createInitalizationTree", 5)
+	defer printDebug("Exiting createInitalizationTree", 5)
 	node := common.MakeTree(&common.Token{common.TREE_INIT_LIST, "INIT_LIST", -1})
 
 	if len(lhs) < len(rhs) {
@@ -679,13 +675,13 @@ func createInitalizationTree(lhs []*common.Tree, rhs []*common.Tree, op *common.
 			node.Append(single_asgn)
 		}
 	}
-	printTreebug(node,"CREATED INIT TREE",9)
+	printTreebug(node, "CREATED INIT TREE", 9)
 	return node
 }
 
 func listify_identifier(tokens *Tokens, verbose bool) *common.Tree {
-	printDebug("Entering listify_identifier" + dPeek(tokens),5)
-	defer printDebug("Exiting listify_identifier" ,5)
+	printDebug("Entering listify_identifier"+dPeek(tokens), 5)
+	defer printDebug("Exiting listify_identifier", 5)
 	next, hasNext := tokens.peek()
 	if !hasNext || next.Type != common.IDENTIFIER {
 		if verbose {
@@ -699,60 +695,60 @@ func listify_identifier(tokens *Tokens, verbose bool) *common.Tree {
 }
 
 func listify_expression(tokens *Tokens, verbose bool) *common.Tree {
-	printDebug("Entering listify_expression" + dPeek(tokens),5)
-	defer printDebug("Exiting listify_expression",5)
+	printDebug("Entering listify_expression"+dPeek(tokens), 5)
+	defer printDebug("Exiting listify_expression", 5)
 	return expression(tokens)
 }
 
 func expression(tokens *Tokens) *common.Tree {
-	printDebug("Entering expression" + dPeek(tokens),5)
-	defer printDebug("Exiting expression" ,5)
+	printDebug("Entering expression"+dPeek(tokens), 5)
+	defer printDebug("Exiting expression", 5)
 	return cond_expression(tokens)
 }
 
 func cond_expression(tokens *Tokens) *common.Tree {
-	printDebug("Entering cond_expression" + dPeek(tokens),5)
-	defer printDebug("Exiting cond_expression" ,5)
+	printDebug("Entering cond_expression"+dPeek(tokens), 5)
+	defer printDebug("Exiting cond_expression", 5)
 	return eval_expression(tokens, add_expression, common.CONDITIONAL_OP)
 }
 
 func add_expression(tokens *Tokens) *common.Tree {
-	printDebug("Entering add_expression" + dPeek(tokens),5)
-	defer printDebug("Exiting add_expression" ,5)
+	printDebug("Entering add_expression"+dPeek(tokens), 5)
+	defer printDebug("Exiting add_expression", 5)
 	return eval_expression(tokens, mult_expression, common.ADDITIVE_OP)
 }
 
 func mult_expression(tokens *Tokens) *common.Tree {
-	printDebug("Entering mult_expression" + dPeek(tokens),5)
-	defer printDebug("Exiting mult_expression" ,5)
+	printDebug("Entering mult_expression"+dPeek(tokens), 5)
+	defer printDebug("Exiting mult_expression", 5)
 	return eval_expression(tokens, atom, common.MULTIPLICATIVE_OP)
 }
 
 func atom(tokens *Tokens) *common.Tree {
-	printDebug("Entering atom" + dPeek(tokens),5)
-	defer printDebug("Exiting atom",5)
-	first,_ := tokens.peek()
+	printDebug("Entering atom"+dPeek(tokens), 5)
+	defer printDebug("Exiting atom", 5)
+	first, _ := tokens.peek()
 	node := common.MakeInvalidTree()
 
-	if node = getConstant(tokens); !node.IsInvalidTree(){
+	if node = getConstant(tokens); !node.IsInvalidTree() {
 
-	}else if node = getParens(tokens); !node.IsInvalidTree(){
+	} else if node = getParens(tokens); !node.IsInvalidTree() {
 
-	}else if node = getUnary(tokens); !node.IsInvalidTree() {
+	} else if node = getUnary(tokens); !node.IsInvalidTree() {
 
-	}else if node = getIdentifier(tokens); !node.IsInvalidTree() {
+	} else if node = getIdentifier(tokens); !node.IsInvalidTree() {
 
-	}else{
-		printError(first,"Expected identifier, primative, unary expression, or parens")
+	} else {
+		printError(first, "Expected identifier, primative, unary expression, or parens")
 	}
 	return node
 }
 
-func getLookUp(tokens *Tokens) *common.Tree{
-	printDebug("Entering getLookUp" + dPeek(tokens),5)
-	defer printDebug("Exiting getLookUp" ,5)
+func getLookUp(tokens *Tokens) *common.Tree {
+	printDebug("Entering getLookUp"+dPeek(tokens), 5)
+	defer printDebug("Exiting getLookUp", 5)
 	id, _ := tokens.next()
-	next,_ := tokens.next()
+	next, _ := tokens.next()
 
 	var closing common.TokenType = common.RIGHT_BRACKET
 	var TYPE common.TokenType = common.ARRAY
@@ -760,37 +756,37 @@ func getLookUp(tokens *Tokens) *common.Tree{
 		closing = common.RIGHT_BRACE
 		TYPE = common.HASH
 	}
-	where := common.MakeTree(&common.Token{TYPE,id.Value,-1})
+	where := common.MakeTree(&common.Token{TYPE, id.Value, -1})
 
 	value := expression(tokens)
-	if !expect(closing,tokens){
+	if !expect(closing, tokens) {
 		return common.MakeInvalidTree()
 	}
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 	return createLookUpTree(where, value)
 
 }
 
 func createLookUpTree(where *common.Tree, value *common.Tree) *common.Tree {
-	lookUpNode := common.MakeTree(&common.Token{common.TREE_LOOK_UP,"LOOK UP",-1})
+	lookUpNode := common.MakeTree(&common.Token{common.TREE_LOOK_UP, "LOOK UP", -1})
 	lookUpNode = lookUpNode.Append(where)
 	lookUpNode = lookUpNode.Append(value)
 	return lookUpNode
 }
 
-func getIdentifier(tokens *Tokens) *common.Tree{
-	printDebug("Entering getIdentifier" + dPeek(tokens),5)
-	defer printDebug("Exiting getIdentifier" ,5)
-	token,_ := tokens.peek()
+func getIdentifier(tokens *Tokens) *common.Tree {
+	printDebug("Entering getIdentifier"+dPeek(tokens), 5)
+	defer printDebug("Exiting getIdentifier", 5)
+	token, _ := tokens.peek()
 	if token.Type == common.IDENTIFIER {
-		id,_ := tokens.next()
+		id, _ := tokens.next()
 		node := common.MakeTree(id)
-		next,_ := tokens.peek()
+		next, _ := tokens.peek()
 
 		if next.Type == common.LEFT_BRACE || next.Type == common.LEFT_BRACKET {
 			tokens.prev()
 			return getLookUp(tokens)
-		}else if next.Type == common.LEFT_PAREN {
+		} else if next.Type == common.LEFT_PAREN {
 			tokens.prev()
 			return getFuncCall(tokens)
 		}
@@ -800,34 +796,34 @@ func getIdentifier(tokens *Tokens) *common.Tree{
 }
 
 func getFuncCall(tokens *Tokens) *common.Tree {
-	printDebug("Entering getFuncCall" + dPeek(tokens),5)
-	defer printDebug("Exiting getFuncCall" ,5)
+	printDebug("Entering getFuncCall"+dPeek(tokens), 5)
+	defer printDebug("Exiting getFuncCall", 5)
 
-	if !expect(common.IDENTIFIER,tokens){
+	if !expect(common.IDENTIFIER, tokens) {
 		return common.MakeInvalidTree()
 	}
 
 	id, _ := tokens.next()
 
-	if !expect(common.LEFT_PAREN,tokens){
+	if !expect(common.LEFT_PAREN, tokens) {
 		tokens.prev()
 		return common.MakeInvalidTree()
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
-	arguments := listify(tokens,listify_expression)
+	arguments := listify(tokens, listify_expression)
 
 	argsNode := common.MakeTree(&common.Token{common.TREE_ARGS, "ARGS", -1})
 	for _, next := range arguments {
 		argsNode = argsNode.Append(next)
 	}
 
-	if !expect(common.RIGHT_PAREN,tokens){
-		return common.MakeTree(&common.Token{common.TREE_TEMP,"BAD",-1})
+	if !expect(common.RIGHT_PAREN, tokens) {
+		return common.MakeTree(&common.Token{common.TREE_TEMP, "BAD", -1})
 	}
 
-	_,_ = tokens.next()
+	_, _ = tokens.next()
 
 	node := common.MakeTree(id)
 	node = node.Append(argsNode)
@@ -836,10 +832,9 @@ func getFuncCall(tokens *Tokens) *common.Tree {
 
 }
 
-
 func getUnary(tokens *Tokens) *common.Tree {
-	printDebug("Entering getUnary" + dPeek(tokens),5)
-	defer printDebug("Exiting getUnary" ,5)
+	printDebug("Entering getUnary"+dPeek(tokens), 5)
+	defer printDebug("Exiting getUnary", 5)
 	token, _ := tokens.peek()
 	if (token.Value == "-" || token.Value == "!") && token.Type != common.ILLEGAL {
 		next, _ := tokens.next()
@@ -851,31 +846,31 @@ func getUnary(tokens *Tokens) *common.Tree {
 	return common.MakeInvalidTree()
 }
 
-func getParens(tokens *Tokens) *common.Tree{
-	printDebug("Entering getParens" + dPeek(tokens),5)
-	defer printDebug("Exiting getParens" ,5)
+func getParens(tokens *Tokens) *common.Tree {
+	printDebug("Entering getParens"+dPeek(tokens), 5)
+	defer printDebug("Exiting getParens", 5)
 	token, _ := tokens.peek()
 	if token.Type == common.LEFT_PAREN {
-		_,_ = tokens.next()
+		_, _ = tokens.next()
 		node := expression(tokens)
-		if !expect(common.RIGHT_PAREN, tokens){
+		if !expect(common.RIGHT_PAREN, tokens) {
 			return common.MakeInvalidTree()
 		}
-		_,_ = tokens.next()
+		_, _ = tokens.next()
 		return node
 	}
 	return common.MakeInvalidTree()
 }
 
-func getConstant(tokens *Tokens) *common.Tree{
-	printDebug("Entering getConstant" + dPeek(tokens),5)
-	defer printDebug("Exiting getConstant" ,5)
+func getConstant(tokens *Tokens) *common.Tree {
+	printDebug("Entering getConstant"+dPeek(tokens), 5)
+	defer printDebug("Exiting getConstant", 5)
 	token, _ := tokens.peek()
 	if token.Type == common.STRING_CONST ||
 		token.Type == common.INTEGER_CONST ||
 		token.Type == common.DECIMAL_CONST ||
 		token.Type == common.TRUE ||
-		token.Type == common.FALSE{
+		token.Type == common.FALSE {
 		_, _ = tokens.next()
 		return common.MakeTree(token)
 	}
@@ -884,8 +879,8 @@ func getConstant(tokens *Tokens) *common.Tree{
 }
 
 func eval_expression(tokens *Tokens, fn func(*Tokens) *common.Tree, tokenType common.TokenType) *common.Tree {
-	printDebug("Entering eval_expression" + dPeek(tokens),5)
-	defer printDebug("Exiting eval_expression" ,5)
+	printDebug("Entering eval_expression"+dPeek(tokens), 5)
+	defer printDebug("Exiting eval_expression", 5)
 	token, hasNext := tokens.peek()
 
 	if !hasNext {

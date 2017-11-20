@@ -153,15 +153,15 @@ func (lex *Lexer) GetLineComment() bool {
 	if next, hasNext := lex.peek(); !hasNext || next != '/' {
 		return false
 	}
-	_,_ = lex.next()
+	_, _ = lex.next()
 	//printDebug("Found first /",1)
 	if next, hasNext := lex.peek(); !hasNext || next != '/' {
 		lex.prev()
 		return false
 	}
-	_,_ = lex.next()
+	_, _ = lex.next()
 	//printDebug("Found second /",1)
-	printDebug("Found Line comment",2)
+	printDebug("Found Line comment", 2)
 	for next, hasNext := lex.next(); hasNext && next != '\n'; next, hasNext = lex.next() {
 	}
 	return true
@@ -171,12 +171,12 @@ func (lex *Lexer) GetBlockComment() bool {
 	if next, hasNext := lex.peek(); !hasNext || next != '/' {
 		return false
 	}
-	_,_ = lex.next()
+	_, _ = lex.next()
 	if next, hasNext := lex.peek(); !hasNext || next != '*' {
 		lex.prev()
 		return false
 	}
-	_,_ = lex.next()
+	_, _ = lex.next()
 	printDebug("Found block comment", 2)
 	found := false
 	for next, hasNext := lex.next(); hasNext; next, hasNext = lex.next() {
