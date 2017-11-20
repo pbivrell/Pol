@@ -38,6 +38,26 @@ func MakeTree(tok *Token) *Tree {
 	return retVal
 }
 
+func (t *Tree) GetNode(i int) *Tree {
+	if t.NodeCount <= i {
+		fmt.Printf("TREE DATA STRUCTURE ERROR: Getting node %d with a count of %d", i, (*t).NodeCount)
+		return &Tree{}
+	}
+	return &t.Nodes[i]
+}
+
+func (t *Tree) GetChildren() []Tree {
+	return t.Nodes
+}
+
+func MakeInvalidTree() *Tree {
+	return MakeTree(InvalidToken())
+}
+
+func (t *Tree) IsInvalidTree() bool {
+	return t.Tok.Type == ILLEGAL
+}
+
 //func Tree() *Tree{
 //	return new(Tree).Init()
 //}

@@ -8,7 +8,7 @@ import "strings"
 import "../common"
 
 /* Set by command line arguments. Enables non-error print statements */
-var Debug = false
+var Debug = 0
 
 /* Lexer is a struct containing Lexer information
    - file is an array of runes read from a .pol file
@@ -18,8 +18,8 @@ var Debug = false
    - tokens is an array of tokens that is built as we tokenize
 */
 type Lexer struct {
-	file      []rune
-	pos       int
+	File      []rune
+	Pos       int
 	size      int
 	lineno    int
 	HasErrors bool
@@ -41,12 +41,19 @@ func NewLexer(file string) *Lexer {
    the position of the current rune is incremented
 */
 func (lex *Lexer) next() (rune, bool) {
-	if lex.pos > lex.size-1 {
+	if lex.Pos > lex.size-1 {
 		return 0, false
 	}
-	pos := lex.pos
-	lex.pos = lex.pos + 1
-	return lex.file[pos], true
+	pos := lex.Pos
+	lex.Pos = lex.Pos + 1
+	return lex.File[pos], true
+}
+
+func (lex *Lexer) prev() {
+	if lex.Pos <= 0 {
+		return
+	}
+	lex.Pos = lex.Pos - 1
 }
 
 /* Peek is a method of the Lexer struct. It does not
@@ -58,10 +65,10 @@ func (lex *Lexer) next() (rune, bool) {
    (IE: subsequent calls to peek return the same results)
 */
 func (lex *Lexer) peek() (rune, bool) {
-	if lex.pos > lex.size-1 {
+	if lex.Pos > lex.size-1 {
 		return 0, false
 	}
-	return lex.file[lex.pos], true
+	return lex.File[lex.Pos], true
 }
 
 /* Error is a function of the takes
@@ -74,7 +81,7 @@ func printError(lex *Lexer, msg string, token string) {
 		token = token[0:9]
 	}
 
-	fmt.Printf("Sytnax error: %s: Line %d: Token [%s]\n", msg, lex.lineno, token)
+	fmt.Printf("Sytnax error: %s line %d: Token [%s]\n", msg, lex.lineno, token)
 	//Eat tokens while until whitespace or seperator
 	//Should decrease likelyhood of cascading errors
 	lex.HasErrors = true
@@ -87,6 +94,12 @@ func printError(lex *Lexer, msg string, token string) {
 
 }
 
+func printDebug(message string, priority int) {
+	if Debug >= priority {
+		fmt.Println("[DEBUG] " + message)
+	}
+}
+
 /* Tokenize is a method of Lexer that iterates over
    the Lexer taking identifying runes and calling appropriate
    function to tokenize the identified token.
@@ -94,69 +107,120 @@ func printError(lex *Lexer, msg string, token string) {
 func (lex *Lexer) Tokenize() []common.Token {
 	resTokens := []common.Token{}
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
+		token := common.Token{common.ILLEGAL, "", 0}
+
+		//printDebug("BEFORE COMMENT [" + string(test) + "]",1)
+		//Eat any comments
+		if lex.GetBlockComment() || lex.GetLineComment() {
+			continue
+		}
+		//printDebug("AFTER COMMENT [" + string(test) + "]",1)
+
 		//New line
 		if char == '\n' {
-			// Printing when theres a new line feels like to much
-			/*if Debug {
-				fmt.Println("New line")
-			}*/
 			lex.lineno = lex.lineno + 1
 			_, _ = lex.next()
-
-			//Digit
-		} else if isDigit(char) {
-			tNum := lex.GetNum()
-			if Debug {
-				fmt.Printf("Number: %+v\n", tNum)
-			}
-			resTokens = append(resTokens, tNum)
-
-			//String
-		} else if char == '"' {
-			tString := lex.GetString()
-			if Debug {
-				fmt.Printf("String: %+v\n", tString)
-			}
-			resTokens = append(resTokens, tString)
-
-			//Indentifier
-		} else if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') {
-			tId := lex.GetID()
-			if Debug {
-				fmt.Printf("ID: %+v\n", tId)
-			}
-			resTokens = append(resTokens, tId)
-
-			//Operators
-		} else if isOp := getOpType(string(char)); isOp != "NAO" { //+ - * / ^ % || && = < > <= >= == != !
-			tOp := lex.GetOp()
-			if Debug {
-				fmt.Printf("OP: %+v\n", tOp)
-			}
-			resTokens = append(resTokens, tOp)
-
-			//Seperators
-		} else if isSeparator(char) {
-			tSeparator := common.Token{"Separator", string(char), lex.lineno}
-			if Debug {
-				fmt.Printf("Separator: %+v\n", tSeparator)
-			}
-			_, _ = lex.next()
-			resTokens = append(resTokens, tSeparator)
-
-			//Should be the catch all for only whitespace
+			printDebug("New line", 3)
+			continue
 		} else if unicode.IsSpace(char) {
-			if Debug {
-				fmt.Println("Whitespace")
-			}
 			_, _ = lex.next()
+			printDebug("Whitespace", 2)
+			continue
+		} else if token = lex.GetNum(); token.Type != common.ILLEGAL {
+			//String: returns string token.type
+		} else if token = lex.GetString(); token.Type != common.ILLEGAL {
+			//Indentifier: returns identifier token.type
+		} else if token = lex.GetID(); token.Type != common.ILLEGAL {
+			//Operators
+		} else if token = lex.GetOp(); token.Type != common.ILLEGAL {
+			//Special Chars '{', '}', '(', ')', '[',']', ';'
+		} else if token = lex.GetSpecial(); token.Type != common.ILLEGAL {
 
+		}
+
+		if token.Type == common.ILLEGAL {
+			printError(lex, "invalid character", string(char))
 		} else {
-			printError(lex, "invalid character ["+string(char)+"]", "FIX THIS")
-			_, _ = lex.next()
+			printDebug(token.String(), 1)
+			resTokens = append(resTokens, token)
 		}
 	}
 	return resTokens
+}
+
+func (lex *Lexer) GetLineComment() bool {
+	//fmt.Println("WE ARE LOOKING AT: " + lex.peek())
+	if next, hasNext := lex.peek(); !hasNext || next != '/' {
+		return false
+	}
+	_, _ = lex.next()
+	//printDebug("Found first /",1)
+	if next, hasNext := lex.peek(); !hasNext || next != '/' {
+		lex.prev()
+		return false
+	}
+	_, _ = lex.next()
+	//printDebug("Found second /",1)
+	printDebug("Found Line comment", 2)
+	for next, hasNext := lex.next(); hasNext && next != '\n'; next, hasNext = lex.next() {
+	}
+	return true
+}
+
+func (lex *Lexer) GetBlockComment() bool {
+	if next, hasNext := lex.peek(); !hasNext || next != '/' {
+		return false
+	}
+	_, _ = lex.next()
+	if next, hasNext := lex.peek(); !hasNext || next != '*' {
+		lex.prev()
+		return false
+	}
+	_, _ = lex.next()
+	printDebug("Found block comment", 2)
+	found := false
+	for next, hasNext := lex.next(); hasNext; next, hasNext = lex.next() {
+
+		if next == '*' {
+			if next2, hasNext2 := lex.next(); hasNext2 && next2 == '/' {
+				found = true
+				break
+			} else {
+				lex.prev()
+			}
+		}
+	}
+	if !found {
+		printError(lex, "Unclosed block comment", "/*")
+	}
+	return true
+}
+
+func (lex *Lexer) GetSpecial() common.Token {
+	var t common.TokenType = common.ILLEGAL
+
+	next, _ := lex.peek()
+	switch next {
+	case '{':
+		t = common.LEFT_BRACE
+	case '}':
+		t = common.RIGHT_BRACE
+	case '[':
+		t = common.LEFT_BRACKET
+	case ']':
+		t = common.RIGHT_BRACKET
+	case '(':
+		t = common.LEFT_PAREN
+	case ')':
+		t = common.RIGHT_PAREN
+	case ';':
+		t = common.SEMI_COLON
+	case ',':
+		t = common.COMMA
+	}
+	_, _ = lex.next()
+
+	return common.Token{t, string(next), lex.lineno}
 }
 
 /* getOp is a method of the Lexer that
@@ -167,79 +231,25 @@ func (lex *Lexer) Tokenize() []common.Token {
 func (lex *Lexer) GetOp() common.Token {
 	op, _ := lex.next()
 	op2, hasNext := lex.peek()
-	if new_op := getOpType(string(op) + string(op2)); hasNext && new_op != "NAO" {
+	new_op := string(op) + string(op2)
+
+	if token := getOpType(new_op); hasNext && token != common.ILLEGAL {
 		_, _ = lex.next()
-		return common.Token{new_op, string(op) + string(op2), lex.lineno}
-	}
-	if new_op := getOpType(string(op)); new_op == "Placeholder" {
-		printError(lex, "not a valid operator", string(op))
-		return common.Token{}
-	}
-	return common.Token{getOpType(string(op)), string(op), lex.lineno}
-}
-
-func getOpType(op string) string {
-	switch op {
-	//Operators on Expressions
-	case "+":
-		return "t_op"
-	case "-":
-		return "t_op"
-	case "*":
-		return "f_op"
-	case "/":
-		return "f_op"
-	case "^":
-		return "f_op"
-	case "%":
-		return "f_op"
-	case "!":
-		return "u_op"
-	//Operators on Assignment Expressions
-	case "=":
-		return "a_op"
-	case "+=":
-		return "a_op"
-	case "-=":
-		return "a_op"
-	case "*=":
-		return "a_op"
-	case "/=":
-		return "a_op"
-	//Operators on Conditional Expressions
-	case "==":
-		return "c_op"
-	case "!=":
-		return "c_op"
-	case "<":
-		return "c_op"
-	case "<=":
-		return "c_op"
-	case ">":
-		return "c_op"
-	case ">=":
-		return "c_op"
-	case "&&":
-		return "c_op"
-	case "||":
-		return "c_op"
-	//These need to exsist so that && and || can work
-	case "&":
-		return "Placeholder"
-	case "|":
-		return "Placeholder"
-	default:
-		return "NAO"
+		return common.Token{token, new_op, lex.lineno}
+	} else if token := getOpType(string(op)); token != common.ILLEGAL {
+		return common.Token{token, string(op), lex.lineno}
+	} else {
+		lex.prev()
+		return common.Token{common.ILLEGAL, "", 0}
 	}
 }
 
-/* getNum is a method of the Lexer that
-   returns a token. getNum will eat runes by calling
-   Lexer.next() until the result no longer matches [0-9]+(.[0-9]+)?
-   getNum assumes that the first rune is a valid number
-*/
 func (lex *Lexer) GetNum() common.Token {
-	raw_res, _ := lex.next()
+	raw_res, hasNext := lex.next()
+	if !isDigit(raw_res) || !hasNext {
+		lex.prev()
+		return common.Token{common.ILLEGAL, "", 0}
+	}
 	res := string(raw_res)
 
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
@@ -247,13 +257,13 @@ func (lex *Lexer) GetNum() common.Token {
 			res = res + string(char)
 		} else if char == '.' {
 			res = res + lex.getDecimal()
-			break
+			return common.Token{common.DECIMAL_CONST, res, lex.lineno}
 		} else {
 			break
 		}
 		_, _ = lex.next()
 	}
-	return common.Token{"num", res, lex.lineno}
+	return common.Token{common.INTEGER_CONST, res, lex.lineno}
 }
 
 /* getDecimal is a method of the Lexer that will eat all of the runes
@@ -290,19 +300,54 @@ func isDigit(char rune) bool {
 */
 
 func (lex *Lexer) GetID() common.Token {
-	raw_res, _ := lex.next()
+
+	raw_res, hasNext := lex.next()
+	if !((raw_res >= 'a' && raw_res <= 'z') || (raw_res >= 'A' && raw_res <= 'Z')) || !hasNext {
+		lex.prev()
+		return common.Token{common.ILLEGAL, "", 0}
+	}
+
 	res := string(raw_res)
 
 	for char, hasNext := lex.peek(); hasNext && isID(char); char, hasNext = lex.peek() {
 		_, _ = lex.next()
 		res = res + string(char)
 	}
-	return common.Token{"id", res, lex.lineno}
+	if tokType := isKeyword(res); tokType != common.ILLEGAL {
+		return common.Token{tokType, res, lex.lineno}
+	}
+
+	return common.Token{common.IDENTIFIER, res, lex.lineno}
 }
 
-/* isID takes a rune returns bool if it is [0-9a-zA-Z] */
+func isKeyword(keyword string) common.TokenType {
+	switch keyword {
+	case "if":
+		return common.IF
+	case "for":
+		return common.FOR
+	case "else":
+		return common.ELSE
+	case "return":
+		return common.RETURN
+	case "break":
+		return common.BREAK
+	case "continue":
+		return common.CONTINUE
+	case "while":
+		return common.WHILE
+	case "true":
+		return common.TRUE
+	case "false":
+		return common.FALSE
+	default:
+		return common.ILLEGAL
+	}
+}
+
+/* isID takes a rune returns bool if it is [0-9a-zA-Z_] */
 func isID(char rune) bool {
-	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9')
+	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') || char == '_'
 }
 
 /* getString is a function that takes a Lexer and returns a token.
@@ -312,13 +357,17 @@ func isID(char rune) bool {
 */
 
 func (lex *Lexer) GetString() common.Token {
-	_, _ = lex.next()
+	raw_res, hasNext := lex.next()
+	if hasNext && raw_res != '"' {
+		lex.prev()
+		return common.Token{common.ILLEGAL, "", 0}
+	}
+
 	res := ""
 	for char, hasNext := lex.peek(); hasNext; char, hasNext = lex.peek() {
-
 		if char == '"' {
 			_, _ = lex.next()
-			return common.Token{"string", res, lex.lineno}
+			return common.Token{common.STRING_CONST, res, lex.lineno}
 		} else if char == '\\' {
 			tmp, _ := lex.next()
 			if char, hasNext = lex.peek(); hasNext && char == '"' {
@@ -333,19 +382,64 @@ func (lex *Lexer) GetString() common.Token {
 		}
 	}
 	printError(lex, "string missing closing quote", res)
-	return common.Token{}
+	return common.Token{common.ILLEGAL, "", 0}
 }
 
-/* isSeparator takes a rune and returns a bool if it is a valid separator */
-func isSeparator(char rune) bool {
-	switch char {
-	case ';':
-		return true
-	case '(':
-		return true
-	case ')':
-		return true
+func getOpType(op string) common.TokenType {
+	switch op {
+	//Operators on Expressions
+	case "+":
+		return common.ADDITIVE_OP
+	case "-":
+		return common.ADDITIVE_OP
+	case "*":
+		return common.MULTIPLICATIVE_OP
+	case "/":
+		return common.MULTIPLICATIVE_OP
+	case "^":
+		return common.MULTIPLICATIVE_OP
+	case "%":
+		return common.MULTIPLICATIVE_OP
+	case "!":
+		return common.UNARY_OP
+	//Operators on Assignment Expressions
+	case "=":
+		return common.ASSIGNMENT_OP
+	case "+=":
+		return common.ASSIGNMENT_OP
+	case "-=":
+		return common.ASSIGNMENT_OP
+	case "*=":
+		return common.ASSIGNMENT_OP
+	case "/=":
+		return common.ASSIGNMENT_OP
+	case "%=":
+		return common.ASSIGNMENT_OP
+	//Operators on Conditional Expressions
+	case "==":
+		return common.CONDITIONAL_OP
+	case "!=":
+		return common.CONDITIONAL_OP
+	case "<":
+		return common.CONDITIONAL_OP
+	case "<=":
+		return common.CONDITIONAL_OP
+	case ">":
+		return common.CONDITIONAL_OP
+	case ">=":
+		return common.CONDITIONAL_OP
+	case "&&":
+		return common.CONDITIONAL_OP
+	case "||":
+		return common.CONDITIONAL_OP
+	//Special Ops
+	case "&":
+		return common.REFRENCE_OP
+	case "{}":
+		return common.HASH_OP
+	case "[]":
+		return common.ARRAY_OP
 	default:
-		return false
+		return common.ILLEGAL
 	}
 }
