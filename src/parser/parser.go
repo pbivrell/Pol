@@ -2,6 +2,7 @@ package parser
 
 import "fmt"
 import "strconv"
+import "os"
 
 //Local libs
 import "../common"
@@ -68,9 +69,11 @@ func printError(tok *common.Token, msg string) {
 
 	error := fmt.Sprintf("Symantic Error: %s: Line %d: Token [%s]", msg, tok.Lineno, tok.Value)
 
-	/*if error == prevError {
+	//This is a quick fix for infinite errors
+	//TODO take second pass at error system
+	if error == prevError {
 		os.Exit(-1)
-	}*/
+	}
 	prevError = error
 
 	fmt.Println(error)
