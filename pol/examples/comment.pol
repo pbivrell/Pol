@@ -1,0 +1,11 @@
+// This is a line comment
+// Any line that starts like these will be ignored by the computer
+
+
+/* Block comment can
+cross many lines. Make sure you have a
+start and an end symbol */
+
+/* This is a block comment. This one starts and ends on the same line */
+
+// Comments will be used to instruct you in further examples

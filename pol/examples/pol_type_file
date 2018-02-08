@@ -1,0 +1,18 @@
+debug = false;
+version = 1;
+
+main(){
+    num1 = 100;
+    num2 = 50;
+
+    num3 = (num1 + num2)^2;
+    foo(num3,2) //Invalid
+    //ADD COMMENT SUPORT!!!!
+}
+
+foo(a,&b){
+    if(a - b == 0){
+        return
+    }
+
+}
