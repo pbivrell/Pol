@@ -6,11 +6,8 @@ You can learn more about it a [program-pol.com](program-pol.com)
 
 ## Usage
 Clone repo.
-From repo directory execute: `go build src/pol/main.go`
 
-OR 
-
-use Go's `go get` command
+From repo directory execute: `go build Pol/main/pol.go`
 
 *This will build a `pol` executable*
 
