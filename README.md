@@ -7,15 +7,17 @@ You can learn more about it a [program-pol.com](program-pol.com)
 ## Usage
 Clone repo.
 
-From repo directory execute: `go build Pol/main/pol.go`
+From repo directory execute: 
 
-*This will build a `pol` executable*
+`go install Pol/main/pol.go`
+
+*This will build a `pol` executable into the src directory*
 
 To run code execute: 
 
 `./pol filename`
                      
-`./pol -src "source code"` Note quotes in src need to be escaped
+`./pol -src "source code"` *Note quotes in src need to be escaped*
 
 POL allows you to print AST with the `-tree` option
 
