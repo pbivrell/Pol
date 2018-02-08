@@ -1,0 +1,34 @@
+/* Variables are a method of storing information to be recalled
+   later. Variables store types. */
+
+main(){
+    // Variables are symbolic names which we assign values to
+    // Here is an example
+
+    myFirstVariable = 12
+
+    /* Here we assigned the value 12 to the variable 'myFirstVariable'
+       notice what we get if we print out 'myFirstVariable' */
+
+    print("myFirstVariable = ")
+    println(myFirstVariable)
+
+    // A variable name must start with an upper or lower case letter. It
+    // can then be followed by any number of letters or numbers
+
+    variable2 = "Look I know how variables work!!!!!"
+    println(variable2)
+
+    /* Variables must be have an inital value you can not make a
+       variable name with out assigning some value to it. */
+
+
+    // Variables can change there value simply by reasigning them
+    apple = 1.2
+    print("Before: ")
+    println(apple)
+
+    apple = "I'm different now"
+    print("After: ")
+    println(apple)
+}

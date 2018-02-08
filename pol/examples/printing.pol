@@ -1,0 +1,29 @@
+/* main is the entry point to a POL program it is required in every
+    POL program. See more information at Functions and Scope */
+main(){
+
+	/* Printing is a way for a programmer to display the results of the
+	    code they write. Below are some examples of printing */
+
+	print("Hello")
+	println(" World!")
+
+	/* Notice the difference between print() and println()
+	    The print() will write exactly what you have typed whereas the
+	    println() will write your text followed by a new line. */
+
+	println("")    // This will only print a new line
+
+    // Try Running this code by pressing the 'Execute Program' button below
+
+    // Notice the extra output '[Program Terminated: Successfully]' this is
+    // there to let you know that your program completed.
+
+
+    /* Now edit this code and try printing your name, birthday
+       favorite color on different lines */
+
+    println("Name")
+    println("Birthday")
+    println("Favorite Color")
+}

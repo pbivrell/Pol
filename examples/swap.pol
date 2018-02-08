@@ -1,0 +1,20 @@
+/* Traditionally swapping contents of variables in programming
+languages is bulky and requires use of a temporary variable
+to hold intermediate results. POL's modern syntax provides a fun
+and simple work around */
+
+main(){
+    //Setup
+    var1, var2 = 8, 1
+    println("Original: " + var1 + ", " + var2)
+
+    //Traditional Swap... Yuck
+    tmp = var1
+    var1 = var2
+    var2 = tmp
+    println("Swapped : " + var1 + ", " + var2)
+
+    //POL Swap
+    var1, var2 = var2, var1
+    println("Swapped Back: " + var1 + ", " + var2)
+}

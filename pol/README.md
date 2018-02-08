@@ -2,7 +2,7 @@
 POL is an interpreted procedural programming language designed
 for an Independent Study at Colorado State University.
 
-You can learn more about it a [program-pol.com](program-pol.com)
+You can learn more about it a program-pol.com
 
 ## Usage
 Clone repo.

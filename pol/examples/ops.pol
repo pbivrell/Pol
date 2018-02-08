@@ -1,0 +1,119 @@
+/* Operators are a way of preforming operations on data.
+   You have probably familiar with a bunch of math operators
+   such as + - * /. POL has support for these and more. */
+
+main(){
+    // Operators are defined on types so they will have different
+    // effect based on the type of data you are operating on
+
+    // Operations on integers
+
+    print("2 + 3 =") // Addition
+    println(2 + 3)
+
+    print("2 - 3 = ") // Subtraction
+    println(2 - 3)
+
+    print("2 * 3 = ") // Multiplication
+    println(2 * 3)
+
+    print("2 / 3 = ") // integer Divison
+    println(2/3)      // notice this makes 0 because 2/3 = 0.6666
+                      // 0.6666 is not a valid integer so it truncates
+                      // the number to the integer value
+
+    // BUG printing '%' from webpage
+    // causes weird printing error
+
+    print("2 mod 3 = ") // modulus (mod)
+    println(2 % 3)      // the mod operator gives you the remainder when doing
+                        // integer division
+
+    print("2 == 2 =")   // Equality
+    println(2 == 2)     // return true if they are equal
+
+    print("2 != 2 =")   // Inequal
+    println(2 != 2)     // return true if they are not equal
+
+    print("2 > 3 = ")      // Greater
+    println(2 > 3)
+
+    print("2 >= 3 = ")      // Greater Equal
+    println(2 >= 3)
+
+    print("2 < 3 = ")      // Less
+    println(2 < 3)
+
+    print("2 <= 3 = ")     // Less Equal
+    println(2 <= 3)
+
+    // Float Operations
+    // are the same as integer operators with the
+    // exeption of divison. Divison on floats produces
+    // decimal results
+
+    print("2.0 / 3.0 = ")
+    println(2.0 / 3.0)
+
+    // Boolean operator
+    // Logical and, or, and not operations are valid operators
+    // on boolean types
+    print("true && false = ")   // And operation
+    println(true && false)
+
+    print("true || false = ")   // Or operation
+    println(true || false)
+
+    print("!true = ")           // Not operation
+    println(!true)
+
+    print("true == false =")    // Equality
+    println(true == false)
+
+    print("true != false =")    // Inequality
+    println(true != false)
+
+    // String operators
+    // string only provide appending and equality
+
+    println("This is an " + "appended string.") // Appending
+
+    print("This == That = ")
+    println("This" == "That")   // Equality
+
+    print("This != That = ")
+    println("This" != "That")   // Inequality
+
+
+    // Type conversion
+    // when you attempt to do an operation on two different types
+    // POL will attempt to translate one type into the other
+    // This is done in a presedence fashion where a type can
+    // only be converted if the conversion does not lose data
+
+    // Full Conversion rules
+    // An int can be used as a float or a string
+    // A float can be used as a string
+
+    // Example
+    println( 2 + 4.523)
+    println("two as a number is " + 2)
+    println("two point 5 as a number is " + 2.5)
+
+    // Operators are converted from left to right so this make
+    // for some odd behavior here:
+
+    println("Apple: " + 2 + 3.59)
+
+    // Notice it evaluates "Apple: " + 2 first
+    // this makes the string "Apple: 2" then it adds
+    // 3.59 making a new string "Apple: 23.59"
+
+    // To evaluate in the other order you could do
+    result = 2 + 3.59
+    println("Apple: " + result)
+
+    //OR
+    println("Apple: " + (2 + 3.59))
+
+}
