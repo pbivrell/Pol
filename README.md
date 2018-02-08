@@ -11,10 +11,13 @@ From repo directory execute: `go build Pol/main/pol.go`
 
 *This will build a `pol` executable*
 
-To run code execute: `./pol filename`
-                     `./pol -src "source code"` Note quotes in src need to be escaped
+To run code execute: 
 
-POL allows you print AST with the -tree option
+`./pol filename`
+                     
+`./pol -src "source code"` Note quotes in src need to be escaped
+
+POL allows you to print AST with the `-tree` option
 
 Check out the examples directory to see examples of pol code
 
